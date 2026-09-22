@@ -1,0 +1,9 @@
+"use client";
+
+import type { ReactElement } from "react";
+import { formatearPesos } from "@/shared/lib/moneda";
+import type { ItemNuevaVenta } from "@/shared/types/venta";
+
+export function CarritoVenta({ items, total, onCambiarCantidad, onQuitar, onCobrar, cobrando }: { items: ItemNuevaVenta[]; total: number; onCambiarCantidad: (productoId: number, cantidad: number) => void; onQuitar: (productoId: number) => void; onCobrar: () => void; cobrando?: boolean }): ReactElement {
+  return <aside className="carrito" aria-label="Pedido actual"><div className="carrito-titulo"><h2>Pedido</h2><span>{items.reduce((cantidad, item) => cantidad + item.cantidad, 0)} productos</span></div>{items.length === 0 ? <p className="estado-vacio">Tocá un producto para agregarlo.</p> : <div className="items-carrito">{items.map((item) => <div key={item.productoId} className="item-carrito"><div><strong>{item.productoNombre}</strong><small>{formatearPesos(item.precioUnitario)} c/u</small></div><div className="cantidad"><button type="button" aria-label={`Quitar una unidad de ${item.productoNombre}`} onClick={() => onCambiarCantidad(item.productoId, item.cantidad - 1)}>−</button><span>{item.cantidad}</span><button type="button" aria-label={`Sumar una unidad de ${item.productoNombre}`} onClick={() => onCambiarCantidad(item.productoId, item.cantidad + 1)}>+</button></div><button className="quitar-item" type="button" onClick={() => onQuitar(item.productoId)} aria-label={`Quitar ${item.productoNombre}`}>×</button></div>)}</div>}<div className="pie-carrito"><div><span>Total a cobrar</span><strong>{formatearPesos(total)}</strong></div><button type="button" className="boton-cobrar" disabled={items.length === 0 || cobrando} onClick={onCobrar}>{cobrando ? "Guardando…" : `Cobrar ${formatearPesos(total)}`}</button></div></aside>;
+}

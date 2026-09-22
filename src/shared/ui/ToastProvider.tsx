@@ -8,10 +8,11 @@ export type Toast = {
   id: number;
   mensaje: string;
   tipo: ToastTipo;
+  accion?: { etiqueta: string; alEjecutar: () => void };
 };
 
 export type ToastContextValue = {
-  mostrar: (mensaje: string, tipo?: ToastTipo) => void;
+  mostrar: (mensaje: string, tipo?: ToastTipo, accion?: Toast["accion"]) => void;
 };
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
@@ -19,12 +20,12 @@ const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 export function ToastProvider({ children }: { children: ReactNode }): ReactElement {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const mostrar = useCallback((mensaje: string, tipo: ToastTipo = "ok") => {
+  const mostrar = useCallback((mensaje: string, tipo: ToastTipo = "ok", accion?: Toast["accion"]) => {
     const id = Date.now() + Math.random();
-    setToasts((actual) => [...actual, { id, mensaje, tipo }]);
+    setToasts((actual) => [...actual, { id, mensaje, tipo, accion }]);
     window.setTimeout(() => {
       setToasts((actual) => actual.filter((toast) => toast.id !== id));
-    }, 3000);
+    }, accion ? 6000 : 3000);
   }, []);
 
   const value = useMemo(() => ({ mostrar }), [mostrar]);
@@ -32,15 +33,14 @@ export function ToastProvider({ children }: { children: ReactNode }): ReactEleme
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex max-w-sm flex-col gap-2">
+      <div className="contenedor-toasts" aria-live="polite">
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`rounded-lg border px-3 py-2 text-sm shadow-md ${
-              toast.tipo === "ok" ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-red-200 bg-red-50 text-red-900"
-            }`}
+            className={`toast toast--${toast.tipo}`}
           >
-            {toast.mensaje}
+            <span>{toast.mensaje}</span>
+            {toast.accion ? <button type="button" onClick={toast.accion.alEjecutar}>{toast.accion.etiqueta}</button> : null}
           </div>
         ))}
       </div>

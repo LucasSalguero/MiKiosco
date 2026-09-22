@@ -30,7 +30,9 @@ export function ListaProductos({
             <span className="font-medium">${producto.precio.toFixed(2)}</span>
           </button>
           {onDesactivar ? (
-            <Boton variant="peligro" onClick={() => onDesactivar(producto.id)} className="px-3 py-2 text-sm">
+            <Boton variant="peligro" onClick={() => {
+              if (window.confirm(`¿Desactivar ${producto.nombre}? Ya no aparecerá para vender.`)) onDesactivar(producto.id);
+            }} className="px-3 py-2 text-sm">
               Desactivar
             </Boton>
           ) : null}

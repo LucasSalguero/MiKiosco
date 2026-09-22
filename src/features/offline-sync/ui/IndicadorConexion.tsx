@@ -10,9 +10,9 @@ export function IndicadorConexion(): ReactElement {
   const cantidadPendientes = useCantidadPendientes();
 
   return (
-    <div className="flex items-center gap-2 rounded-full border px-3 py-2 text-sm">
+    <div className={`indicador-conexion ${enLinea ? "" : "indicador-conexion--offline"}`}>
       <span
-        className={`h-2.5 w-2.5 rounded-full ${enLinea ? "bg-emerald-500" : "bg-red-500"}`}
+        className="punto-conexion"
       />
       <span>{enLinea ? "En línea" : "Sin conexión"}</span>
       <span className="text-slate-500">•</span>

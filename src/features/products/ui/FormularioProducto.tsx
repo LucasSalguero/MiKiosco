@@ -16,6 +16,8 @@ export function FormularioProducto({
 }): ReactElement {
   const [nombre, setNombre] = useState(producto?.nombre ?? "");
   const [precio, setPrecio] = useState(producto ? String(producto.precio) : "");
+  const precioValido = Number.isFinite(Number(precio)) && Number(precio) >= 0;
+  const puedeGuardar = nombre.trim().length > 0 && precio.trim().length > 0 && precioValido;
 
   const guardar = async () => {
     await onGuardar({ nombre, precio: Number(precio) });
@@ -47,7 +49,7 @@ export function FormularioProducto({
       </label>
 
       <div className="flex gap-3">
-        <Boton onClick={guardar} className="flex-1">
+        <Boton onClick={guardar} disabled={!puedeGuardar} className="flex-1">
           {producto ? "Guardar cambios" : "Crear producto"}
         </Boton>
         {onCancelar ? (

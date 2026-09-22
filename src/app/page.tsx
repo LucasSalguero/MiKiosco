@@ -1,20 +1,20 @@
 import { listarProductosActivos } from "@/features/products/actions/listar-productos";
+import { obtenerResumenDiario } from "@/features/daily-summary/actions/obtener-resumen-diario";
+import { CabeceraPuntoVenta } from "@/features/daily-summary/ui/CabeceraPuntoVenta";
 import { VentaRapida } from "@/features/sales/ui/VentaRapida";
 
 export default async function HomePage() {
   const resultado = await listarProductosActivos();
+  const resumen = await obtenerResumenDiario();
 
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-4 py-8">
-      <header className="mb-8">
-        <p className="text-sm font-medium uppercase tracking-wide text-slate-500">Mi Kiosco</p>
-        <h1 className="text-3xl font-bold text-slate-900">Venta rapida</h1>
-      </header>
+    <main className="punto-venta">
+      <CabeceraPuntoVenta resumenInicial={resumen.ok ? resumen.data : null} />
 
       {resultado.ok ? (
         <VentaRapida productos={resultado.data} />
       ) : (
-        <section className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-900" role="alert">
+        <section className="mensaje-error" role="alert">
           {resultado.error}
         </section>
       )}
