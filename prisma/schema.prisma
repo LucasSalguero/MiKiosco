@@ -17,6 +17,7 @@ model Producto {
 
 model Venta {
   id           Int         @id @default(autoincrement())
+  clienteId    String?     @unique
   fecha        DateTime    @default(now())
   total        Decimal
   sincronizada Boolean     @default(true)

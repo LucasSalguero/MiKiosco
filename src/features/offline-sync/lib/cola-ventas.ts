@@ -4,13 +4,21 @@ import type { Resultado } from "@/shared/types/resultado";
 import { fallo, ok } from "@/shared/lib/resultado";
 import { eliminarVentaPendiente, guardarVentaPendiente, listarVentasPendientes } from "@/shared/lib/storage";
 
-export async function encolarVenta(venta: NuevaVenta): Promise<Resultado<VentaPendiente>> {
-  if (typeof crypto === "undefined" || typeof crypto.randomUUID !== "function") {
-    return fallo("No se pudo preparar la venta para sincronizar.");
+export async function encolarVenta(
+  venta: NuevaVenta,
+  localId?: string,
+): Promise<Resultado<VentaPendiente>> {
+  const id = localId ?? (
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : null
+  );
+  if (!id) {
+    return fallo("No se pudo preparar la venta para sincronizar.", "storage");
   }
 
   const pendiente: VentaPendiente = {
-    localId: crypto.randomUUID(),
+    localId: id,
     venta,
     creadaEn: new Date().toISOString(),
     intentos: 0,
@@ -20,7 +28,7 @@ export async function encolarVenta(venta: NuevaVenta): Promise<Resultado<VentaPe
 
   if (!resultado.ok) {
     console.error("offline-sync.encolarVenta", resultado.error);
-    return fallo("No se pudo guardar la venta sin conexión.");
+    return fallo("No se pudo guardar la venta sin conexión.", "storage");
   }
 
   if (typeof window !== "undefined") {

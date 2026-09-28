@@ -10,23 +10,33 @@ import type { NuevaVenta } from "@/shared/types/venta";
 import { calcularTotalVenta } from "@/features/sales/lib/calcular-total";
 import { validarNuevaVenta } from "@/features/sales/lib/validar-venta";
 
-export async function crearVenta(venta: NuevaVenta): Promise<Resultado<{ id: number }>> {
-  const validado = validarNuevaVenta(venta);
-
-  if (!validado.ok) {
-    return fallo(validado.error);
-  }
-
-  const { items, fecha } = validado.data;
-  const ids = items.map((item) => item.productoId);
-
+export async function crearVenta(
+  venta: NuevaVenta,
+  clienteId: string,
+): Promise<Resultado<{ id: number }>> {
   try {
+    const existente = await prisma.venta.findUnique({
+      where: { clienteId },
+      select: { id: true },
+    });
+
+    if (existente) {
+      return ok({ id: existente.id });
+    }
+
+    const validado = validarNuevaVenta(venta);
+    if (!validado.ok) {
+      return fallo(validado.error, validado.code);
+    }
+
+    const { items, fecha } = validado.data;
+    const ids = items.map((item) => item.productoId);
     const productos = await prisma.producto.findMany({
       where: { id: { in: ids } },
     });
 
     if (productos.length !== ids.length) {
-      return fallo("Hay productos que no existen.");
+      return fallo("Hay productos que no existen.", "validation");
     }
 
     const total = calcularTotalVenta(items);
@@ -37,6 +47,7 @@ export async function crearVenta(venta: NuevaVenta): Promise<Resultado<{ id: num
           fecha: new Date(fecha),
           total: new Prisma.Decimal(total.toFixed(2)),
           sincronizada: true,
+          clienteId,
         },
       });
 
@@ -55,6 +66,15 @@ export async function crearVenta(venta: NuevaVenta): Promise<Resultado<{ id: num
     return ok({ id: nuevaVenta.id });
   } catch (error) {
     console.error("sales.crearVenta", error);
-    return fallo("No se pudo registrar la venta.");
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      const existente = await prisma.venta.findUnique({
+        where: { clienteId },
+        select: { id: true },
+      });
+      if (existente) {
+        return ok({ id: existente.id });
+      }
+    }
+    return fallo("No se pudo registrar la venta.", "database");
   }
 }

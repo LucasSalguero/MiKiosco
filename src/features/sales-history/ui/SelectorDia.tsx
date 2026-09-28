@@ -2,6 +2,7 @@
 
 import type { ReactElement } from "react";
 
+import { hoyISO } from "@/shared/lib/fechas";
 import { Boton } from "@/shared/ui/Boton";
 
 export function SelectorDia({
@@ -19,7 +20,7 @@ export function SelectorDia({
         onChange={(event) => onCambiar(event.target.value)}
         className="min-h-[44px] rounded-lg border border-slate-300 bg-white px-3"
       />
-      <Boton variant="secundario" onClick={() => onCambiar(new Date().toISOString().slice(0, 10))}>
+      <Boton variant="secundario" onClick={() => onCambiar(hoyISO())}>
         Hoy
       </Boton>
     </div>

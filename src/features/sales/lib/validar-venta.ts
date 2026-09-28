@@ -5,24 +5,24 @@ import type { Resultado } from "@/shared/types/resultado";
 
 export function validarNuevaVenta(venta: NuevaVenta): Resultado<NuevaVenta> {
   if (!Array.isArray(venta.items) || venta.items.length === 0) {
-    return fallo("La venta debe incluir al menos un producto.");
+    return fallo("La venta debe incluir al menos un producto.", "validation");
   }
 
   if (typeof venta.fecha !== "string" || Number.isNaN(new Date(venta.fecha).getTime())) {
-    return fallo("La fecha de la venta es inválida.");
+    return fallo("La fecha de la venta es inválida.", "validation");
   }
 
   for (const item of venta.items) {
     if (!Number.isInteger(item.cantidad) || item.cantidad <= 0) {
-      return fallo("Las cantidades deben ser números enteros mayores a cero.");
+      return fallo("Las cantidades deben ser números enteros mayores a cero.", "validation");
     }
 
     if (!Number.isFinite(item.precioUnitario) || item.precioUnitario < 0) {
-      return fallo("El precio unitario no es válido.");
+      return fallo("El precio unitario no es válido.", "validation");
     }
 
     if (!Number.isInteger(item.productoId) || item.productoId <= 0) {
-      return fallo("El producto es inválido.");
+      return fallo("El producto es inválido.", "validation");
     }
   }
 

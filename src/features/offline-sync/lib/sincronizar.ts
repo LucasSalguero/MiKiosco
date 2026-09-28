@@ -8,7 +8,7 @@ import {
   listarVentasPendientes,
 } from "@/shared/lib/storage";
 
-export type EnviarVenta = (venta: NuevaVenta) => Promise<Resultado<{ id: number }>>;
+export type EnviarVenta = (venta: NuevaVenta, clienteId: string) => Promise<Resultado<{ id: number }>>;
 
 let sincronizacionEnCurso = false;
 
@@ -35,7 +35,7 @@ export async function sincronizarPendientes(
     let fallidas = 0;
 
     for (const pendiente of ordenadas) {
-      const respuesta = await enviar(pendiente.venta);
+      const respuesta = await enviar(pendiente.venta, pendiente.localId);
 
       if (respuesta.ok) {
         const eliminado = await eliminarVentaPendiente(pendiente.localId);
@@ -43,21 +43,6 @@ export async function sincronizarPendientes(
           console.error("offline-sync.sincronizarPendientes", eliminado.error);
         }
         enviadas += 1;
-        continue;
-      }
-
-      if (respuesta.error.includes("No se pudo registrar la venta.")) {
-        const actualizada = await actualizarVentaPendiente(pendiente.localId, {
-          ...pendiente,
-          intentos: pendiente.intentos + 1,
-          ultimoError: respuesta.error,
-        });
-
-        if (!actualizada.ok) {
-          console.error("offline-sync.sincronizarPendientes", actualizada.error);
-        }
-
-        fallidas += 1;
         continue;
       }
 
@@ -72,13 +57,15 @@ export async function sincronizarPendientes(
       }
 
       fallidas += 1;
-      break;
+      if (respuesta.code !== "database" && respuesta.code !== "network") {
+        break;
+      }
     }
 
     return ok({ enviadas, fallidas });
   } catch (error) {
     console.error("offline-sync.sincronizarPendientes", error);
-    return fallo("No se pudo sincronizar las ventas pendientes.");
+    return fallo("No se pudo sincronizar las ventas pendientes.", "network");
   } finally {
     sincronizacionEnCurso = false;
   }

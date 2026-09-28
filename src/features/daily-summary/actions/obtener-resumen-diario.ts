@@ -13,8 +13,7 @@ export async function obtenerResumenDiario(
   const { desde, hasta } = rangoDelDia(fechaISO);
 
   try {
-    const resumen = await prisma.venta.groupBy({
-      by: ["fecha"],
+    const resumen = await prisma.venta.aggregate({
       where: {
         fecha: {
           gte: desde,
@@ -25,12 +24,12 @@ export async function obtenerResumenDiario(
       _count: { id: true },
     });
 
-    const total = resumen[0]?._sum.total ? Number(resumen[0]._sum.total.toString()) : 0;
+    const total = resumen._sum.total ? Number(resumen._sum.total.toString()) : 0;
 
     return ok({
       fecha: fechaISO,
       total,
-      cantidadVentas: resumen[0]?._count.id ?? 0,
+      cantidadVentas: resumen._count.id,
     });
   } catch (error) {
     console.error("daily-summary.obtenerResumenDiario", error);
