@@ -1,5 +1,3 @@
-import type { Prisma } from "@prisma/client";
-
 export function formatearPesos(monto: number): string {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
@@ -9,7 +7,7 @@ export function formatearPesos(monto: number): string {
   }).format(monto);
 }
 
-export function decimalANumero(valor: Prisma.Decimal): number {
+export function decimalANumero(valor: { toString: () => string }): number {
   return Number(valor.toString());
 }
 

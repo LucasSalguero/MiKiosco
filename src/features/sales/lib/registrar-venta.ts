@@ -4,12 +4,14 @@ import { fallo, ok } from "@/shared/lib/resultado";
 import { crearVenta } from "@/features/sales/actions/crear-venta";
 import { encolarVenta } from "@/features/offline-sync/lib/cola-ventas";
 
-export type VentaRegistrada = { estado: "sincronizada"; id: number } | { estado: "pendiente"; localId: string };
+export type VentaRegistrada =
+  { estado: "sincronizada"; id: number } | { estado: "pendiente"; localId: string };
 
 export async function registrarVenta(venta: NuevaVenta): Promise<Resultado<VentaRegistrada>> {
-  const localId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-    ? crypto.randomUUID()
-    : null;
+  const localId =
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : null;
 
   if (!localId) {
     return fallo("No se pudo preparar la venta para sincronizar.", "storage");

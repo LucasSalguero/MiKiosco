@@ -9,10 +9,19 @@ import { listarProductosActivos } from "@/features/products/actions/listar-produ
 export async function cargarProductos(): Promise<
   Resultado<{ productos: Producto[]; origen: "servidor" | "cache" }>
 > {
-  const resultadoServidor = await listarProductosActivos();
+  let resultadoServidor;
+  try {
+    resultadoServidor = await listarProductosActivos();
+  } catch (error) {
+    console.error("products.cargarProductos", error);
+    resultadoServidor = fallo("No se pudieron cargar los productos.", "network");
+  }
 
   if (resultadoServidor.ok) {
-    await guardarProductosCache(resultadoServidor.data);
+    const resultadoCache = await guardarProductosCache(resultadoServidor.data);
+    if (!resultadoCache.ok) {
+      console.error("products.cargarProductos.cache", resultadoCache.error);
+    }
     return ok({ productos: resultadoServidor.data, origen: "servidor" });
   }
 
@@ -23,5 +32,5 @@ export async function cargarProductos(): Promise<
   }
 
   console.error("products.cargarProductos", resultadoServidor.error);
-  return fallo("No se pudieron cargar los productos.");
+  return fallo("No se pudieron cargar los productos.", resultadoServidor.code);
 }

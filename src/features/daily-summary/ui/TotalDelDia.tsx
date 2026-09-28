@@ -8,18 +8,20 @@ import type { ResumenDiario } from "@/shared/types/resumen-diario";
 export function TotalDelDia({
   resumen,
   sinConexion,
+  compacto = false,
 }: {
   resumen: ResumenDiario | null;
   sinConexion?: boolean;
+  compacto?: boolean;
 }): ReactElement {
   const total = resumen?.total ?? 0;
 
   return (
-    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
-      <p className="text-sm uppercase tracking-wide text-emerald-700">Total del día</p>
-      <p className="mt-3 text-4xl font-bold text-slate-900">{formatearPesos(total)}</p>
+    <div className={compacto ? "total-del-dia--compacto" : "total-del-dia"} aria-live="polite">
+      <p>{compacto ? "Hoy" : "Total del día"}</p>
+      <strong>{formatearPesos(total)}</strong>
       {sinConexion ? (
-        <p className="mt-2 text-sm text-emerald-700">Sin conexión: incluye solo ventas sin sincronizar</p>
+        <small>Sin conexión: incluye ventas guardadas en este dispositivo</small>
       ) : null}
     </div>
   );

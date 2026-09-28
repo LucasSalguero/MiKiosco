@@ -8,7 +8,10 @@ import {
   listarVentasPendientes,
 } from "@/shared/lib/storage";
 
-export type EnviarVenta = (venta: NuevaVenta, clienteId: string) => Promise<Resultado<{ id: number }>>;
+export type EnviarVenta = (
+  venta: NuevaVenta,
+  clienteId: string,
+) => Promise<Resultado<{ id: number }>>;
 
 let sincronizacionEnCurso = false;
 
@@ -27,9 +30,7 @@ export async function sincronizarPendientes(
       return pendientes;
     }
 
-    const ordenadas = [...pendientes.data].sort((a, b) =>
-      a.creadaEn.localeCompare(b.creadaEn),
-    );
+    const ordenadas = [...pendientes.data].sort((a, b) => a.creadaEn.localeCompare(b.creadaEn));
 
     let enviadas = 0;
     let fallidas = 0;
@@ -41,6 +42,8 @@ export async function sincronizarPendientes(
         const eliminado = await eliminarVentaPendiente(pendiente.localId);
         if (!eliminado.ok) {
           console.error("offline-sync.sincronizarPendientes", eliminado.error);
+        } else if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("ventas-pendientes-cambio"));
         }
         enviadas += 1;
         continue;

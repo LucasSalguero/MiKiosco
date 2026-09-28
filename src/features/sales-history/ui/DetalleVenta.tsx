@@ -5,15 +5,15 @@ import type { Venta } from "@/shared/types/venta";
 
 export function DetalleVenta({ venta }: { venta: Venta }): ReactElement {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Detalle de venta</h3>
-        <span className="text-sm text-slate-500">{venta.sincronizada ? "Sincronizada" : "Pendiente"}</span>
+    <div className="detalle-venta">
+      <div className="detalle-venta__cabecera">
+        <h3>Detalle de venta</h3>
+        <span>{venta.sincronizada ? "Sincronizada" : "Pendiente"}</span>
       </div>
 
-      <div className="space-y-2">
+      <div className="detalle-venta__items">
         {venta.items.map((item) => (
-          <div key={item.id} className="flex items-center justify-between text-sm">
+          <div key={item.id} className="detalle-venta__item">
             <span>
               {item.cantidad}x {item.productoNombre}
             </span>
@@ -22,9 +22,7 @@ export function DetalleVenta({ venta }: { venta: Venta }): ReactElement {
         ))}
       </div>
 
-      <div className="mt-4 border-t border-slate-200 pt-3 text-right text-lg font-bold">
-        {formatearPesos(venta.total)}
-      </div>
+      <div className="detalle-venta__total">{formatearPesos(venta.total)}</div>
     </div>
   );
 }

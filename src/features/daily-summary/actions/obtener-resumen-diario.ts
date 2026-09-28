@@ -6,9 +6,7 @@ import { rangoDelDia, hoyISO } from "@/shared/lib/fechas";
 import type { ResumenDiario } from "@/shared/types/resumen-diario";
 import type { Resultado } from "@/shared/types/resultado";
 
-export async function obtenerResumenDiario(
-  fecha?: string,
-): Promise<Resultado<ResumenDiario>> {
+export async function obtenerResumenDiario(fecha?: string): Promise<Resultado<ResumenDiario>> {
   const fechaISO = fecha ?? hoyISO();
   const { desde, hasta } = rangoDelDia(fechaISO);
 

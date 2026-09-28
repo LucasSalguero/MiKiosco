@@ -64,18 +64,40 @@ function ejecutarEnStore<T>(
           const tx = db.transaction(storeName, operation);
           const store = tx.objectStore(storeName);
           const request = callback(store) as RequestLike;
+          let resultadoSolicitud: unknown;
+          let solicitudCompletada = false;
 
           request.onsuccess = () => {
-            resolve(ok(request.result as T | T[] | null));
+            resultadoSolicitud = request.result;
+            solicitudCompletada = true;
           };
 
           request.onerror = () => {
             console.error(`storage.${storeName}`, request.result);
-            resolve(fallo("No se pudo guardar la información local."));
+          };
+
+          tx.oncomplete = () => {
+            db.close();
+            resolve(
+              solicitudCompletada
+                ? ok(resultadoSolicitud as T | T[] | null)
+                : fallo("No se pudo guardar la información local.", "storage"),
+            );
+          };
+
+          tx.onabort = () => {
+            db.close();
+            console.error(`storage.${storeName}`, tx.error);
+            resolve(fallo("No se pudo guardar la información local.", "storage"));
+          };
+
+          tx.onerror = () => {
+            console.error(`storage.${storeName}`, tx.error);
           };
         } catch (error) {
+          db.close();
           console.error(`storage.${storeName}`, error);
-          resolve(fallo("El almacenamiento local está corrupto."));
+          resolve(fallo("El almacenamiento local está corrupto.", "storage"));
         }
       })
       .catch((error) => {
@@ -133,10 +155,8 @@ export async function actualizarVentaPendiente(
 }
 
 export async function eliminarVentaPendiente(localId: string): Promise<Resultado<boolean>> {
-  const resultado = await ejecutarEnStore<boolean>(
-    STORE_VENTAS_PENDIENTES,
-    "readwrite",
-    (store) => store.delete(localId),
+  const resultado = await ejecutarEnStore<boolean>(STORE_VENTAS_PENDIENTES, "readwrite", (store) =>
+    store.delete(localId),
   );
 
   if (!resultado.ok) {
@@ -151,6 +171,7 @@ export async function guardarProductosCache(productos: Producto[]): Promise<Resu
     STORE_PRODUCTOS_CACHE,
     "readwrite",
     (store) => {
+      store.clear();
       for (const producto of productos) {
         store.put(producto);
       }
@@ -166,10 +187,8 @@ export async function guardarProductosCache(productos: Producto[]): Promise<Resu
 }
 
 export async function leerProductosCache(): Promise<Resultado<Producto[]>> {
-  const resultado = await ejecutarEnStore<Producto>(
-    STORE_PRODUCTOS_CACHE,
-    "readonly",
-    (store) => store.getAll(),
+  const resultado = await ejecutarEnStore<Producto>(STORE_PRODUCTOS_CACHE, "readonly", (store) =>
+    store.getAll(),
   );
 
   if (!resultado.ok) {

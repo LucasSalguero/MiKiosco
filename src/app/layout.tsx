@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import "./globals.css";
+import "./components.css";
 
 import { crearVenta } from "@/features/sales/actions/crear-venta";
 import { SincronizadorAutomatico } from "@/features/offline-sync/ui/SincronizadorAutomatico";
+import { ResumenDiarioProvider } from "@/features/daily-summary/ui/ResumenDiarioProvider";
+import { RegistrarServiceWorker } from "@/features/offline-sync/ui/RegistrarServiceWorker";
 import { ToastProvider } from "@/shared/ui/ToastProvider";
 
 export const metadata: Metadata = {
@@ -17,8 +20,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="es">
       <body>
         <ToastProvider>
-          <SincronizadorAutomatico enviar={crearVenta} />
-          {children}
+          <ResumenDiarioProvider>
+            <RegistrarServiceWorker />
+            <SincronizadorAutomatico enviar={crearVenta} />
+            {children}
+          </ResumenDiarioProvider>
         </ToastProvider>
       </body>
     </html>

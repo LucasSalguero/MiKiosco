@@ -24,18 +24,18 @@ export function FormularioProducto({
   };
 
   return (
-    <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <label className="block text-sm font-medium text-slate-700">
+    <div className="formulario-producto">
+      <label className="campo-formulario">
         Nombre
         <input
           value={nombre}
           onChange={(event) => setNombre(event.target.value)}
-          className="mt-1 min-h-[44px] w-full rounded-lg border border-slate-300 px-3"
+          className="entrada-formulario"
           placeholder="Ej: Galletas"
         />
       </label>
 
-      <label className="block text-sm font-medium text-slate-700">
+      <label className="campo-formulario">
         Precio
         <input
           type="number"
@@ -43,17 +43,17 @@ export function FormularioProducto({
           step="0.01"
           value={precio}
           onChange={(event) => setPrecio(event.target.value)}
-          className="mt-1 min-h-[44px] w-full rounded-lg border border-slate-300 px-3"
+          className="entrada-formulario"
           placeholder="0.00"
         />
       </label>
 
-      <div className="flex gap-3">
-        <Boton onClick={guardar} disabled={!puedeGuardar} className="flex-1">
+      <div className="acciones-formulario">
+        <Boton onClick={guardar} disabled={!puedeGuardar}>
           {producto ? "Guardar cambios" : "Crear producto"}
         </Boton>
         {onCancelar ? (
-          <Boton variant="secundario" onClick={onCancelar} className="flex-1">
+          <Boton variant="secundario" onClick={onCancelar}>
             Cancelar
           </Boton>
         ) : null}

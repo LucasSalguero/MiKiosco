@@ -1,17 +1,18 @@
-import type { Carrito, ItemNuevaVenta } from "@/shared/types/venta";
+import type { Carrito } from "@/shared/types/venta";
 
-export function agregarProducto(carrito: Carrito, producto: {
-  id: number;
-  nombre: string;
-  precio: number;
-}): Carrito {
+export function agregarProducto(
+  carrito: Carrito,
+  producto: {
+    id: number;
+    nombre: string;
+    precio: number;
+  },
+): Carrito {
   const itemExistente = carrito.find((item) => item.productoId === producto.id);
 
   if (itemExistente) {
     return carrito.map((item) =>
-      item.productoId === producto.id
-        ? { ...item, cantidad: item.cantidad + 1 }
-        : item,
+      item.productoId === producto.id ? { ...item, cantidad: item.cantidad + 1 } : item,
     );
   }
 
@@ -31,9 +32,7 @@ export function cambiarCantidad(carrito: Carrito, productoId: number, cantidad: 
     return carrito.filter((item) => item.productoId !== productoId);
   }
 
-  return carrito.map((item) =>
-    item.productoId === productoId ? { ...item, cantidad } : item,
-  );
+  return carrito.map((item) => (item.productoId === productoId ? { ...item, cantidad } : item));
 }
 
 export function quitarProducto(carrito: Carrito, productoId: number): Carrito {

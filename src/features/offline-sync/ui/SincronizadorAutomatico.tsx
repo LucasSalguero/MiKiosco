@@ -41,22 +41,5 @@ export function SincronizadorAutomatico({ enviar }: { enviar: EnviarVenta }): Re
     return () => window.clearInterval(intervalo);
   }, [enLinea, pendientes, enviar, mostrar]);
 
-  useEffect(() => {
-    if (!enLinea) {
-      return;
-    }
-
-    const sincronizar = async () => {
-      const resultado = await sincronizarPendientes(enviar);
-      if (!resultado.ok) {
-        mostrar(resultado.error, "error");
-      } else if (resultado.data.enviadas > 0) {
-        mostrar(`${resultado.data.enviadas} ventas sincronizadas`, "ok");
-      }
-    };
-
-    void sincronizar();
-  }, [enLinea, enviar, mostrar]);
-
   return null;
 }

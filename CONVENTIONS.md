@@ -8,7 +8,7 @@ priorizar simplicidad y velocidad de entrega sobre "hacerlo perfecto".
 - Next.js (App Router) + React + TypeScript
 - PWA, sin backend propio en esta etapa: persistencia local vía
   `localStorage` / `IndexedDB`
-- Estilos con Tailwind CSS
+- Estilos con CSS manual en `src/app/globals.css` y `src/app/components.css`; usar clases semánticas.
 
 ## Estructura de carpetas
 
@@ -38,6 +38,11 @@ No crear una nueva carpeta de nivel superior sin justificarlo en el commit.
 - `strict: true` en `tsconfig`. No usar `any`.
 - Todo tipo de dominio (venta, producto, día) vive en `/types` y se importa
   desde ahí — no redefinir tipos inline en cada componente.
+
+## Calidad
+
+- `npm run format` aplica Prettier.
+- `npm run lint` ejecuta ESLint.
 
 ## Estado y datos
 

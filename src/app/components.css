@@ -1,0 +1,254 @@
+.boton {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.boton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.boton--primario {
+  background: var(--verde);
+  color: #fff;
+}
+
+.boton--primario:hover:not(:disabled) {
+  background: var(--verde-oscuro);
+}
+
+.boton--secundario {
+  border-color: var(--borde);
+  background: #fff;
+  color: var(--tinta);
+}
+
+.boton--peligro {
+  border-color: #e5b5b5;
+  background: #fff5f5;
+  color: var(--peligro);
+}
+
+.formulario-producto {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.campo-formulario {
+  display: grid;
+  gap: 6px;
+  color: var(--tinta);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.entrada-formulario,
+.selector-dia__entrada {
+  min-height: 44px;
+  width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--tinta);
+}
+
+.acciones-formulario,
+.selector-dia {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.acciones-formulario > .boton {
+  flex: 1;
+}
+
+.lista-productos,
+.lista-ventas {
+  display: grid;
+  gap: 10px;
+}
+
+.producto-administrable,
+.fila-venta,
+.detalle-venta {
+  padding: 14px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.producto-administrable {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.producto-administrable__seleccion {
+  display: flex;
+  min-height: 44px;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 0;
+  background: transparent;
+  color: var(--tinta);
+  text-align: left;
+}
+
+.producto-administrable__precio,
+.fila-venta__total {
+  font-weight: 700;
+}
+
+.confirmacion-desactivar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  color: var(--peligro);
+  font-size: 13px;
+}
+
+.fila-venta__cabecera,
+.fila-venta__item,
+.detalle-venta__cabecera,
+.detalle-venta__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fila-venta__fecha,
+.detalle-venta__cabecera > span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.fila-venta__items,
+.detalle-venta__items {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  color: #4f5b6b;
+  font-size: 14px;
+}
+
+.detalle-venta__cabecera h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.detalle-venta__total {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--borde);
+  font-size: 20px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.selector-dia__entrada {
+  max-width: 220px;
+}
+
+.total-del-dia--compacto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-left: 10px;
+  border-left: 1px solid var(--borde);
+}
+
+.total-del-dia--compacto p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.total-del-dia--compacto strong {
+  font-size: 18px;
+}
+
+.total-del-dia--compacto small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.total-del-dia {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.total-del-dia p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.total-del-dia strong {
+  font-size: 28px;
+}
+
+.total-del-dia small {
+  color: var(--muted);
+}
+
+.aviso-cache {
+  margin: 14px 0 -8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.pantalla-estado {
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--muted);
+}
+
+.pantalla-error {
+  border-color: #efb6b6;
+  background: #fff3f3;
+  color: #9c2727;
+}
+
+@media (max-width: 560px) {
+  .producto-administrable {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .producto-administrable__seleccion {
+    width: 100%;
+  }
+
+  .confirmacion-desactivar {
+    flex-wrap: wrap;
+  }
+
+  .selector-dia {
+    align-items: stretch;
+  }
+
+  .selector-dia__entrada {
+    min-width: 0;
+  }
+}

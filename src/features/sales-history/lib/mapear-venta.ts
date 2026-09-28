@@ -1,4 +1,5 @@
 import type { Venta } from "@/shared/types/venta";
+import { decimalANumero } from "@/shared/lib/moneda";
 
 type VentaPersistida = {
   id: number;
@@ -18,15 +19,18 @@ export function mapearVenta(venta: VentaPersistida): Venta {
   return {
     id: venta.id,
     fecha: venta.fecha.toISOString(),
-    total: Number(venta.total.toString()),
+    total: decimalANumero(venta.total),
     sincronizada: venta.sincronizada,
-    items: venta.items.map((item) => ({
-      id: item.id,
-      productoId: item.productoId,
-      productoNombre: item.producto.nombre,
-      cantidad: item.cantidad,
-      precioUnitario: Number(item.precioUnitario.toString()),
-      subtotal: Number(item.cantidad * Number(item.precioUnitario.toString())),
-    })),
+    items: venta.items.map((item) => {
+      const precioUnitario = decimalANumero(item.precioUnitario);
+      return {
+        id: item.id,
+        productoId: item.productoId,
+        productoNombre: item.producto.nombre,
+        cantidad: item.cantidad,
+        precioUnitario,
+        subtotal: Number((item.cantidad * precioUnitario).toFixed(2)),
+      };
+    }),
   };
 }

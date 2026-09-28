@@ -13,12 +13,12 @@ export function SelectorDia({
   onCambiar: (fecha: string) => void;
 }): ReactElement {
   return (
-    <div className="flex items-center gap-3">
+    <div className="selector-dia">
       <input
         type="date"
         value={fecha}
         onChange={(event) => onCambiar(event.target.value)}
-        className="min-h-[44px] rounded-lg border border-slate-300 bg-white px-3"
+        className="selector-dia__entrada"
       />
       <Boton variant="secundario" onClick={() => onCambiar(hoyISO())}>
         Hoy
