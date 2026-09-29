@@ -116,6 +116,61 @@
   gap: 10px;
 }
 
+.gestion-productos {
+  width: min(920px, 100%);
+  margin: 0 auto;
+  padding: 0 16px 112px;
+}
+
+.gestion-productos__encabezado {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.gestion-productos__encabezado h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.gestion-productos__formulario,
+.gestion-productos__listado {
+  margin-top: 24px;
+}
+
+.gestion-productos__formulario h2,
+.gestion-productos__titulo-lista h2 {
+  margin: 0 0 12px;
+  font-size: 19px;
+}
+
+.gestion-productos__titulo-lista {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gestion-productos__titulo-lista span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.productos-inactivos {
+  margin-top: 24px;
+  border-top: 1px solid var(--borde);
+}
+
+.productos-inactivos summary {
+  min-height: 48px;
+  padding: 14px 0;
+  color: var(--tinta);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.productos-inactivos[open] .lista-productos {
+  padding-bottom: 12px;
+}
+
 .producto-administrable,
 .fila-venta,
 .detalle-venta {

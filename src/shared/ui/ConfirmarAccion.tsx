@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactElement } from "react";
+import { useEffect, useId, useRef, type ReactElement } from "react";
 
 import { Boton } from "@/shared/ui/Boton";
 
@@ -26,6 +26,7 @@ export function ConfirmarAccion({
   alCancelar,
 }: ConfirmarAccionProps): ReactElement {
   const dialogo = useRef<HTMLDialogElement>(null);
+  const identificador = useId();
 
   useEffect(() => {
     const elemento = dialogo.current;
@@ -38,8 +39,8 @@ export function ConfirmarAccion({
     <dialog
       ref={dialogo}
       className="dialogo-confirmacion"
-      aria-labelledby="confirmar-accion-titulo"
-      aria-describedby="confirmar-accion-mensaje"
+      aria-labelledby={`${identificador}-titulo`}
+      aria-describedby={`${identificador}-mensaje`}
       onCancel={(evento) => {
         evento.preventDefault();
         alCancelar();
@@ -48,8 +49,8 @@ export function ConfirmarAccion({
         if (evento.target === evento.currentTarget) alCancelar();
       }}
     >
-      <h2 id="confirmar-accion-titulo">{titulo}</h2>
-      <p id="confirmar-accion-mensaje">{mensaje}</p>
+      <h2 id={`${identificador}-titulo`}>{titulo}</h2>
+      <p id={`${identificador}-mensaje`}>{mensaje}</p>
       <div className="dialogo-confirmacion__acciones">
         <Boton variant="secundario" onClick={alCancelar}>
           Cancelar
