@@ -224,6 +224,73 @@
   gap: 12px;
 }
 
+.fila-venta__abrir {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--tinta);
+  text-align: left;
+}
+
+.fila-venta--anulada .fila-venta__total,
+.detalle-venta--anulada .detalle-venta__total {
+  text-decoration: line-through;
+}
+
+.etiqueta-anulada {
+  color: var(--peligro);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.historial {
+  width: min(920px, 100%);
+  margin: 0 auto;
+  padding: 0 16px 112px;
+}
+
+.historial__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.historial__encabezado h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.historial__contenido {
+  display: grid;
+  gap: 18px;
+  padding-top: 20px;
+}
+
+.historial .total-del-dia {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.historial .total-del-dia p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.historial .total-del-dia strong {
+  font-size: 20px;
+}
+
 .fila-venta__fecha,
 .detalle-venta__cabecera > span {
   color: var(--muted);

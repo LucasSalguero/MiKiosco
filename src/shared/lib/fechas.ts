@@ -28,6 +28,20 @@ export function fechaLocalISO(fecha: Date): string {
   return `${año}-${mes}-${dia}`;
 }
 
+export function esFechaISOValida(fechaISO: string): boolean {
+  const coincidencia = /^(\d{4})-(\d{2})-(\d{2})$/.exec(fechaISO);
+  if (!coincidencia) return false;
+
+  const [año, mes, dia] = coincidencia.slice(1).map(Number);
+  if (año < 100 || mes < 1 || mes > 12 || dia < 1 || dia > 31) return false;
+  const fecha = new Date(Date.UTC(año, mes - 1, dia));
+  return (
+    fecha.getUTCFullYear() === año &&
+    fecha.getUTCMonth() + 1 === mes &&
+    fecha.getUTCDate() === dia
+  );
+}
+
 function inicioDelDiaEnZona(año: number, mes: number, dia: number): Date {
   const fechaLocalComoUTC = Date.UTC(año, mes - 1, dia);
   let instante = fechaLocalComoUTC;

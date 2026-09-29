@@ -2,7 +2,7 @@
 
 import prisma from "@/shared/db/client";
 import { fallo, ok } from "@/shared/lib/resultado";
-import { fechaLocalISO } from "@/shared/lib/fechas";
+import { fechaLocalISO, hoyISO, rangoDelDia } from "@/shared/lib/fechas";
 import type { ResumenDiario } from "@/shared/types/resumen-diario";
 import type { Resultado } from "@/shared/types/resultado";
 
@@ -12,16 +12,23 @@ export async function listarResumenUltimosDias(
   const dias = Math.max(1, cantidad);
 
   try {
-    const hoy = new Date();
-    const desde = new Date(hoy);
-    desde.setDate(hoy.getDate() - dias + 1);
-    desde.setHours(0, 0, 0, 0);
+    const hoy = hoyISO();
+    const [año, mes, dia] = hoy.split("-").map(Number);
+    const inicioCalendario = new Date(Date.UTC(año, mes - 1, dia - dias + 1));
+    const desdeISO = [
+      inicioCalendario.getUTCFullYear(),
+      String(inicioCalendario.getUTCMonth() + 1).padStart(2, "0"),
+      String(inicioCalendario.getUTCDate()).padStart(2, "0"),
+    ].join("-");
+    const { desde } = rangoDelDia(desdeISO);
+    const { hasta } = rangoDelDia(hoy);
 
     const ventas = await prisma.venta.findMany({
       where: {
         anulada: false,
         fecha: {
           gte: desde,
+          lt: hasta,
         },
       },
       orderBy: { fecha: "asc" },
