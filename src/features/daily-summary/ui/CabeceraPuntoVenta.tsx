@@ -5,10 +5,10 @@ import type { ReactElement } from "react";
 import { IndicadorConexion } from "@/features/offline-sync/ui/IndicadorConexion";
 import { useEstadoConexion } from "@/features/offline-sync/lib/use-estado-conexion";
 import { TotalDelDia } from "@/features/daily-summary/ui/TotalDelDia";
-import { useResumenDiario } from "@/features/daily-summary/ui/ResumenDiarioProvider";
+import { useTotalDia } from "@/features/daily-summary/ui/TotalDiaProvider";
 
 export function CabeceraPuntoVenta(): ReactElement {
-  const { resumen } = useResumenDiario();
+  const { total } = useTotalDia();
   const { enLinea } = useEstadoConexion();
 
   return (
@@ -19,7 +19,7 @@ export function CabeceraPuntoVenta(): ReactElement {
       </div>
       <div className="estado-punto-venta">
         <IndicadorConexion />
-        <TotalDelDia resumen={resumen} compacto sinConexion={!enLinea} />
+        <TotalDelDia total={total} compacto sinConexion={!enLinea} />
       </div>
     </header>
   );

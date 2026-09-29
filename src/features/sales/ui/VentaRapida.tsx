@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { anularVenta } from "@/features/sales/actions/anular-venta";
-import { useResumenDiario } from "@/features/daily-summary/ui/ResumenDiarioProvider";
+import { useTotalDia } from "@/features/daily-summary/ui/TotalDiaProvider";
 import { quitarVentaPendiente } from "@/features/offline-sync/lib/cola-ventas";
 import { agregarProducto, cambiarCantidad, vaciarCarrito } from "@/features/sales/lib/carrito";
 import { calcularTotalVenta } from "@/features/sales/lib/calcular-total";
@@ -17,7 +17,7 @@ export function VentaRapida({ productos }: { productos: Producto[] }): ReactElem
   const [carrito, setCarrito] = useState<ItemNuevaVenta[]>([]);
   const [cobrando, setCobrando] = useState(false);
   const { mostrar } = useToast();
-  const { registrarCambio } = useResumenDiario();
+  const { sumar } = useTotalDia();
   const total = calcularTotalVenta(carrito);
   const deshacer = async (venta: VentaRegistrada, importe: number) => {
     const resultado =
@@ -28,7 +28,7 @@ export function VentaRapida({ productos }: { productos: Producto[] }): ReactElem
       mostrar(resultado.error, "error");
       return;
     }
-    if (venta.estado === "sincronizada") registrarCambio(-importe, -1);
+    if (venta.estado === "sincronizada") sumar(-importe);
     mostrar("Venta deshecha.");
   };
   const manejarCobrar = async () => {
@@ -42,7 +42,7 @@ export function VentaRapida({ productos }: { productos: Producto[] }): ReactElem
       return;
     }
     setCarrito(vaciarCarrito());
-    if (resultado.data.estado === "sincronizada") registrarCambio(importe, 1);
+    if (resultado.data.estado === "sincronizada") sumar(importe);
     const mensaje =
       resultado.data.estado === "pendiente"
         ? "Venta guardada. Se sincronizará cuando vuelva la conexión."

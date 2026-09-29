@@ -6,16 +6,14 @@ import { formatearPesos } from "@/shared/lib/moneda";
 import type { ResumenDiario } from "@/shared/types/resumen-diario";
 
 export function TotalDelDia({
-  resumen,
+  total,
   sinConexion,
   compacto = false,
 }: {
-  resumen: ResumenDiario | null;
+  total: number;
   sinConexion?: boolean;
   compacto?: boolean;
 }): ReactElement {
-  const total = resumen?.total ?? 0;
-
   return (
     <div className={compacto ? "total-del-dia--compacto" : "total-del-dia"} aria-live="polite">
       <p>{compacto ? "Hoy" : "Total del día"}</p>
