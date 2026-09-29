@@ -23,18 +23,10 @@ export default async function HistorialPage({
   ]);
 
   if (!resultadoResumen.ok) {
-    return (
-      <main className="historial">
-        <section className="mensaje-error" role="alert">{resultadoResumen.error}</section>
-      </main>
-    );
+    throw new Error(resultadoResumen.error);
   }
   if (!resultadoVentas.ok) {
-    return (
-      <main className="historial">
-        <section className="mensaje-error" role="alert">{resultadoVentas.error}</section>
-      </main>
-    );
+    throw new Error(resultadoVentas.error);
   }
 
   return (

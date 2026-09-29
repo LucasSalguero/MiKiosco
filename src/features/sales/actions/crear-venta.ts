@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 
 import prisma from "@/shared/db/client";
@@ -63,6 +64,8 @@ export async function crearVenta(
       return ventaCreada;
     });
 
+    revalidatePath("/");
+    revalidatePath("/historial");
     return ok({ id: nuevaVenta.id });
   } catch (error) {
     console.error("sales.crearVenta", error);

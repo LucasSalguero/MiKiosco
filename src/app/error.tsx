@@ -17,7 +17,7 @@ export default function Error({
     <main className="punto-venta">
       <section className="pantalla-estado pantalla-error" role="alert">
         <h1>No se pudo cargar Mi Kiosco</h1>
-        <p>La información local sigue disponible. Probá recargar la pantalla.</p>
+        <p>No pudimos cargar esta pantalla. Probá de nuevo.</p>
         <button className="boton boton--primario" type="button" onClick={reset}>
           Reintentar
         </button>

@@ -5,13 +5,7 @@ export default async function ProductosPage() {
   const resultado = await listarProductosGestion();
 
   if (!resultado.ok) {
-    return (
-      <main className="gestion-productos">
-        <section className="mensaje-error" role="alert">
-          {resultado.error}
-        </section>
-      </main>
-    );
+    throw new Error(resultado.error);
   }
 
   return <GestionProductos productosIniciales={resultado.data} />;

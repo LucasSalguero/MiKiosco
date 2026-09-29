@@ -145,6 +145,33 @@
   color: var(--verde-oscuro);
 }
 
+.enlace-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.estado-vacio-productos {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 20px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.estado-vacio-productos h2,
+.estado-vacio-productos p {
+  margin: 0;
+}
+
+.estado-vacio-productos p {
+  color: var(--muted);
+}
+
 .gestion-productos {
   width: min(920px, 100%);
   margin: 0 auto;
@@ -436,6 +463,12 @@
   .navegacion-principal__enlace {
     min-width: 120px;
     padding: 0 16px;
+  }
+}
+
+@media (max-width: 759px) {
+  .punto-venta {
+    padding-bottom: 112px;
   }
 }
 
