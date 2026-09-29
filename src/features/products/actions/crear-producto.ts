@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import prisma from "@/shared/db/client";
 import { fallo, ok } from "@/shared/lib/resultado";
 import type { DatosProducto, Producto } from "@/shared/types/producto";
@@ -16,6 +17,15 @@ export async function crearProducto(datos: DatosProducto): Promise<Resultado<Pro
   }
 
   try {
+    const existente = await prisma.producto.findFirst({
+      where: {
+        activo: true,
+        nombre: { equals: validado.data.nombre, mode: "insensitive" },
+      },
+      select: { id: true },
+    });
+    if (existente) return fallo("Ya existe un producto con ese nombre.");
+
     const producto = await prisma.producto.create({
       data: {
         nombre: validado.data.nombre,
@@ -23,6 +33,9 @@ export async function crearProducto(datos: DatosProducto): Promise<Resultado<Pro
       },
     });
 
+    revalidatePath("/");
+    revalidatePath("/productos");
+    revalidatePath("/historial");
     return ok(mapearProducto(producto));
   } catch (error) {
     console.error("products.crearProducto", error);

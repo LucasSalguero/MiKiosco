@@ -60,6 +60,12 @@
   color: var(--tinta);
 }
 
+.error-campo {
+  color: var(--peligro);
+  font-size: 13px;
+  font-weight: 500;
+}
+
 .acciones-formulario,
 .selector-dia {
   display: flex;
