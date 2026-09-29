@@ -20,3 +20,16 @@ export async function listarProductosActivos(): Promise<Resultado<Producto[]>> {
     return fallo("No se pudieron cargar los productos.");
   }
 }
+
+export async function listarProductosGestion(): Promise<Resultado<Producto[]>> {
+  try {
+    const productos = await prisma.producto.findMany({
+      orderBy: { nombre: "asc" },
+    });
+
+    return ok(productos.map(mapearProducto));
+  } catch (error) {
+    console.error("products.listarProductosGestion", error);
+    return fallo("No se pudieron cargar los productos.");
+  }
+}
