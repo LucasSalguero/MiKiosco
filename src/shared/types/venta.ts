@@ -12,6 +12,7 @@ export type Venta = {
   fecha: string;
   total: number;
   sincronizada: boolean;
+  anulada: boolean;
   items: VentaItem[];
 };
 

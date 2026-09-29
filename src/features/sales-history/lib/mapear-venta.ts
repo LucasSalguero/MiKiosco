@@ -6,6 +6,7 @@ type VentaPersistida = {
   fecha: Date;
   total: { toString: () => string };
   sincronizada: boolean;
+  anulada: boolean;
   items: Array<{
     id: number;
     productoId: number;
@@ -21,6 +22,7 @@ export function mapearVenta(venta: VentaPersistida): Venta {
     fecha: venta.fecha.toISOString(),
     total: decimalANumero(venta.total),
     sincronizada: venta.sincronizada,
+    anulada: venta.anulada,
     items: venta.items.map((item) => {
       const precioUnitario = decimalANumero(item.precioUnitario);
       return {

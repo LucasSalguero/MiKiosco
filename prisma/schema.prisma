@@ -21,6 +21,7 @@ model Venta {
   fecha        DateTime    @default(now())
   total        Decimal
   sincronizada Boolean     @default(true)
+  anulada      Boolean     @default(false)
   items        VentaItem[]
 }
 

@@ -13,6 +13,7 @@ export async function obtenerResumenDiario(fecha?: string): Promise<Resultado<Re
   try {
     const resumen = await prisma.venta.aggregate({
       where: {
+        anulada: false,
         fecha: {
           gte: desde,
           lt: hasta,

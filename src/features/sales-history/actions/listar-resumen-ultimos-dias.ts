@@ -19,6 +19,7 @@ export async function listarResumenUltimosDias(
 
     const ventas = await prisma.venta.findMany({
       where: {
+        anulada: false,
         fecha: {
           gte: desde,
         },
