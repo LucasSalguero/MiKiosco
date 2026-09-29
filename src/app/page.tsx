@@ -2,6 +2,8 @@ import { obtenerResumenDiario } from "@/features/daily-summary/actions/obtener-r
 import { TotalDiaProvider } from "@/features/daily-summary/ui/TotalDiaProvider";
 import { InicioPuntoVenta } from "@/features/sales/ui/InicioPuntoVenta";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const resultado = await obtenerResumenDiario();
 

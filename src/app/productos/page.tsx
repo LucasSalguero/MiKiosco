@@ -1,6 +1,8 @@
 import { listarProductosGestion } from "@/features/products/actions/listar-productos";
 import { GestionProductos } from "@/features/products/ui/GestionProductos";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProductosPage() {
   const resultado = await listarProductosGestion();
 
