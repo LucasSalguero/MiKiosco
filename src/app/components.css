@@ -99,6 +99,73 @@
   min-width: 112px;
 }
 
+.pantalla-desbloqueo {
+  display: grid;
+  min-height: 100dvh;
+  padding: 20px 16px;
+  place-items: center;
+}
+
+.desbloqueo {
+  display: grid;
+  width: min(360px, 100%);
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 18px #1720330d;
+}
+
+.desbloqueo h1,
+.desbloqueo p {
+  margin: 0;
+}
+
+.desbloqueo h1 {
+  font-size: 24px;
+}
+
+.desbloqueo__ayuda {
+  color: var(--muted);
+}
+
+.desbloqueo__entrada {
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: #f8fafb;
+  font-size: 24px;
+  letter-spacing: 0.45em;
+  text-align: center;
+}
+
+.teclado-pin {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.teclado-pin button {
+  min-height: 52px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--tinta);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.teclado-pin button:hover {
+  background: #f4fbf8;
+}
+
+.desbloqueo__error {
+  color: var(--peligro);
+  font-size: 14px;
+}
+
 .acciones-formulario,
 .selector-dia {
   display: flex;
@@ -121,7 +188,7 @@
   z-index: 30;
   inset: auto 0 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   min-height: 68px;
   padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--borde);
@@ -138,6 +205,13 @@
   color: var(--muted);
   font-weight: 700;
   text-decoration: none;
+}
+
+.navegacion-principal button {
+  border: 0;
+  background: transparent;
+  font-size: inherit;
+  cursor: pointer;
 }
 
 .navegacion-principal__enlace.activo {

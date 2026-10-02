@@ -21,6 +21,7 @@ function esResultado(valor: unknown): valor is Resultado<{ id: number }> {
       valor.code === "database" ||
       valor.code === "storage" ||
       valor.code === "network" ||
+      valor.code === "unauthorized" ||
       valor.code === "unknown")
   );
 }

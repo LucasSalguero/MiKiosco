@@ -1,11 +1,18 @@
 import { guardarVenta } from "@/features/sales/lib/guardar-venta";
-import type { NuevaVenta } from "@/shared/types/venta";
+import { tieneSesionValida } from "@/shared/lib/autenticacion";
 
 function esRegistro(valor: unknown): valor is Record<string, unknown> {
   return typeof valor === "object" && valor !== null;
 }
 
 export async function POST(request: Request): Promise<Response> {
+  if (!(await tieneSesionValida())) {
+    return Response.json(
+      { ok: false, code: "unauthorized", error: "Ingresá el PIN para continuar." },
+      { status: 401 },
+    );
+  }
+
   let cuerpo: unknown;
   try {
     cuerpo = await request.json();
@@ -29,7 +36,7 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  const resultado = await guardarVenta(cuerpo.venta as unknown as NuevaVenta, cuerpo.clienteId);
+  const resultado = await guardarVenta(cuerpo.venta, cuerpo.clienteId);
   return Response.json(resultado, {
     status: resultado.ok ? 200 : resultado.code === "validation" ? 400 : 500,
   });

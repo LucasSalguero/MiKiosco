@@ -8,6 +8,8 @@ import type { Resultado } from "@/shared/types/resultado";
 
 import { validarDatosProducto } from "@/features/products/lib/validar-producto";
 import { mapearProducto } from "@/features/products/lib/mapear-producto";
+import { tieneSesionValida } from "@/shared/lib/autenticacion";
+import { esIdEnteroValido } from "@/shared/lib/validar-id";
 
 export async function actualizarProducto(
   id: number,
@@ -18,7 +20,8 @@ export async function actualizarProducto(
   if (!validado.ok) {
     return fallo(validado.error);
   }
-  if (!Number.isInteger(id) || id <= 0) return fallo("El identificador del producto no es válido.");
+  if (!esIdEnteroValido(id)) return fallo("El identificador del producto no es válido.");
+  if (!(await tieneSesionValida())) return fallo("Ingresá el PIN para continuar.", "unauthorized");
 
   try {
     const existente = await prisma.producto.findFirst({

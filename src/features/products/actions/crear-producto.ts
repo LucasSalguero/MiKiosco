@@ -8,8 +8,11 @@ import type { Resultado } from "@/shared/types/resultado";
 
 import { validarDatosProducto } from "@/features/products/lib/validar-producto";
 import { mapearProducto } from "@/features/products/lib/mapear-producto";
+import { tieneSesionValida } from "@/shared/lib/autenticacion";
 
 export async function crearProducto(datos: DatosProducto): Promise<Resultado<Producto>> {
+  if (!(await tieneSesionValida())) return fallo("Ingresá el PIN para continuar.", "unauthorized");
+
   const validado = validarDatosProducto(datos);
 
   if (!validado.ok) {

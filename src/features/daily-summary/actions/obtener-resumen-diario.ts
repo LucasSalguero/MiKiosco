@@ -5,8 +5,11 @@ import { fallo, ok } from "@/shared/lib/resultado";
 import { rangoDelDia, hoyISO } from "@/shared/lib/fechas";
 import type { ResumenDiario } from "@/shared/types/resumen-diario";
 import type { Resultado } from "@/shared/types/resultado";
+import { tieneSesionValida } from "@/shared/lib/autenticacion";
 
 export async function obtenerResumenDiario(fecha?: string): Promise<Resultado<ResumenDiario>> {
+  if (!(await tieneSesionValida())) return fallo("Ingresá el PIN para continuar.", "unauthorized");
+
   const fechaISO = fecha ?? hoyISO();
   const { desde, hasta } = rangoDelDia(fechaISO);
 
