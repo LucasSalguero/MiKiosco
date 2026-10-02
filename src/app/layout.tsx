@@ -4,16 +4,20 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import "./components.css";
 
-import { SincronizadorAutomatico } from "@/features/offline-sync/ui/SincronizadorAutomatico";
-import { RegistrarServiceWorker } from "@/features/offline-sync/ui/RegistrarServiceWorker";
-import { NavegacionPrincipal } from "@/shared/ui/NavegacionPrincipal";
+import { AppShell } from "@/app-shell";
 import { ToastProvider } from "@/shared/ui/ToastProvider";
 
 export const metadata: Metadata = {
   title: "Mi Kiosco",
   description: "Gestion de ventas y productos del kiosco",
   appleWebApp: { capable: true, title: "Mi Kiosco", statusBarStyle: "default" },
-  icons: { icon: "/icon-192.png", apple: "/icon-192.png" },
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/icon-192.png",
+  },
 };
 
 export const viewport = {
@@ -27,9 +31,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="es">
       <body>
         <ToastProvider>
-          <RegistrarServiceWorker />
-          <SincronizadorAutomatico />
-          <NavegacionPrincipal />
+          <AppShell />
           {children}
         </ToastProvider>
       </body>

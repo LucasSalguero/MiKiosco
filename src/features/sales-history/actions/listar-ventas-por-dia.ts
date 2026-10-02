@@ -7,8 +7,11 @@ import type { Resultado } from "@/shared/types/resultado";
 import type { Venta } from "@/shared/types/venta";
 
 import { mapearVenta } from "@/features/sales-history/lib/mapear-venta";
+import { tieneSesionValida } from "@/shared/lib/autenticacion";
 
 export async function listarVentasPorDia(fecha: string): Promise<Resultado<Venta[]>> {
+  if (!(await tieneSesionValida())) return fallo("Ingresá el PIN para continuar.", "unauthorized");
+
   const { desde, hasta } = rangoDelDia(fecha);
 
   try {

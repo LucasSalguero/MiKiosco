@@ -1,6 +1,13 @@
-const CACHE_NAME = "mi-kiosco-shell-v4";
+const CACHE_NAME = "mi-kiosco-shell-v5";
 const OFFLINE_URL = "/offline.html";
-const SHELL_URLS = ["/", "/historial", "/productos", OFFLINE_URL, "/icon.svg"];
+const SHELL_URLS = [
+  OFFLINE_URL,
+  "/manifest.webmanifest",
+  "/icon.svg",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/icon-maskable-512.png",
+];
 
 async function fetchConTimeout(request, milisegundos) {
   return fetch(request, { signal: AbortSignal.timeout(milisegundos) });
@@ -10,7 +17,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => Promise.allSettled(SHELL_URLS.map((url) => cache.add(url))))
+      .then((cache) => cache.addAll(SHELL_URLS))
       .then(() => self.skipWaiting()),
   );
 });
@@ -35,55 +42,20 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
 
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
-  if (url.pathname === "/api/ventas") return;
-
-  const esRsc = request.headers.get("RSC") === "1" || url.searchParams.has("_rsc");
-
-  if (esRsc) {
-    event.respondWith(
-      fetchConTimeout(request, 4000)
-        .then((response) => {
-          if (response.ok) {
-            const copia = response.clone();
-            void caches
-              .open(CACHE_NAME)
-              .then((cache) => cache.put(request, copia))
-              .catch(() => undefined);
-          }
-          return response;
-        })
-        .catch(async () => {
-          const cache = await caches.open(CACHE_NAME);
-          const respuesta = await cache.match(request, { ignoreSearch: true, ignoreVary: true });
-          return respuesta?.headers.get("content-type")?.includes("text/x-component")
-            ? respuesta
-            : Response.error();
-        }),
-    );
+  if (
+    url.pathname === "/api/ventas" ||
+    request.headers.has("RSC") ||
+    url.searchParams.has("_rsc")
+  ) {
     return;
   }
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetchConTimeout(request, 4000)
-        .then((response) => {
-          if (response.ok) {
-            const copia = response.clone();
-            void caches
-              .open(CACHE_NAME)
-              .then((cache) => cache.put(request, copia))
-              .catch(() => undefined);
-          }
-          return response;
-        })
-        .catch(async () => {
-          const cache = await caches.open(CACHE_NAME);
-          return (
-            (await cache.match(request, { ignoreSearch: true })) ??
-            (await cache.match("/")) ??
-            (await cache.match(OFFLINE_URL))
-          );
-        }),
+      fetchConTimeout(request, 4000).catch(async () => {
+        const cache = await caches.open(CACHE_NAME);
+        return (await cache.match(OFFLINE_URL)) ?? Response.error();
+      }),
     );
     return;
   }

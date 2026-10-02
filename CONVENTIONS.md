@@ -68,9 +68,9 @@ El acceso a IndexedDB pasa por `src/shared/lib/storage.ts`.
 - Registrar errores con `console.error("area.funcion", error)`.
 - Los controles táctiles deben tener al menos 44px de alto.
 
-## Fuera de alcance por ahora (no implementar sin pedirlo explícitamente)
+## Autenticación y tests
 
-- Autenticación / multiusuario
-- Autenticación / PIN (Sprint 4)
-- Tests automatizados
-- Internacionalización
+- Las rutas privadas y Server Actions deben validar la sesión del PIN en el
+  servidor.
+- Las pruebas unitarias de lógica de negocio se ejecutan con `npm test`.
+- No registrar PINs, hashes ni secretos de sesión en logs.

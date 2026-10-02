@@ -4,20 +4,28 @@ import { Prisma } from "@prisma/client";
 import prisma from "@/shared/db/client";
 import { fallo, ok } from "@/shared/lib/resultado";
 import type { Resultado } from "@/shared/types/resultado";
-import type { NuevaVenta } from "@/shared/types/venta";
 import { calcularTotalVenta } from "@/features/sales/lib/calcular-total";
 import { validarNuevaVenta } from "@/features/sales/lib/validar-venta";
+import { tieneSesionValida } from "@/shared/lib/autenticacion";
 
 export async function guardarVenta(
-  venta: NuevaVenta,
-  clienteId: string,
+  venta: unknown,
+  clienteId: unknown,
 ): Promise<Resultado<{ id: number }>> {
+  if (!(await tieneSesionValida())) return fallo("Ingresá el PIN para continuar.", "unauthorized");
+  if (
+    typeof clienteId !== "string" ||
+    !/^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i.test(clienteId)
+  ) {
+    return fallo("El identificador de la venta no es válido.", "validation");
+  }
+
+  const validado = validarNuevaVenta(venta);
+  if (!validado.ok) return fallo(validado.error, validado.code);
+
   try {
     const existente = await prisma.venta.findUnique({ where: { clienteId }, select: { id: true } });
     if (existente) return ok({ id: existente.id });
-
-    const validado = validarNuevaVenta(venta);
-    if (!validado.ok) return fallo(validado.error, validado.code);
 
     const { items, fecha } = validado.data;
     const ids = items.map((item) => item.productoId);

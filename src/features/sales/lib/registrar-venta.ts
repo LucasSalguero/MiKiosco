@@ -33,7 +33,7 @@ export async function registrarVenta(venta: NuevaVenta): Promise<Resultado<Venta
     if (resultado.ok) {
       return ok({ estado: "sincronizada", id: resultado.data.id });
     }
-    if (resultado.code === "validation") {
+    if (resultado.code === "validation" || resultado.code === "unauthorized") {
       return fallo(resultado.error, resultado.code);
     }
     return guardarPendiente();
