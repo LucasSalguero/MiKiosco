@@ -36,9 +36,7 @@ export function esFechaISOValida(fechaISO: string): boolean {
   if (año < 100 || mes < 1 || mes > 12 || dia < 1 || dia > 31) return false;
   const fecha = new Date(Date.UTC(año, mes - 1, dia));
   return (
-    fecha.getUTCFullYear() === año &&
-    fecha.getUTCMonth() + 1 === mes &&
-    fecha.getUTCDate() === dia
+    fecha.getUTCFullYear() === año && fecha.getUTCMonth() + 1 === mes && fecha.getUTCDate() === dia
   );
 }
 
