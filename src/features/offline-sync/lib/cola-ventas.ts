@@ -66,3 +66,21 @@ export async function quitarVentaPendiente(localId: string): Promise<Resultado<b
     window.dispatchEvent(new Event("ventas-pendientes-cambio"));
   return resultado;
 }
+
+export async function reintentarVentaPendiente(localId: string): Promise<Resultado<boolean>> {
+  const pendientes = await obtenerPendientes();
+  if (!pendientes.ok) return pendientes;
+  const pendiente = pendientes.data.find((venta) => venta.localId === localId);
+  if (!pendiente) return fallo("No se encontró la venta pendiente.", "storage");
+
+  const resultado = await guardarVentaPendiente({
+    ...pendiente,
+    intentos: 0,
+    ultimoError: undefined,
+    proximoIntento: undefined,
+    estado: undefined,
+  });
+  if (!resultado.ok) return resultado;
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("ventas-pendientes-cambio"));
+  return ok(true);
+}

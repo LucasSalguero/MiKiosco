@@ -6,11 +6,7 @@ import type { ReactElement } from "react";
 import { hoyISO } from "@/shared/lib/fechas";
 import { Boton } from "@/shared/ui/Boton";
 
-export function SelectorDia({
-  fecha,
-}: {
-  fecha: string;
-}): ReactElement {
+export function SelectorDia({ fecha }: { fecha: string }): ReactElement {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

@@ -2,7 +2,7 @@ import { obtenerResumenDiario } from "@/features/daily-summary/actions/obtener-r
 import { listarVentasPorDia } from "@/features/sales-history/actions/listar-ventas-por-dia";
 import { ListaVentas } from "@/features/sales-history/ui/ListaVentas";
 import { SelectorDia } from "@/features/sales-history/ui/SelectorDia";
-import { TotalDelDia } from "@/features/daily-summary/ui/TotalDelDia";
+import { PendientesDelDia } from "@/features/sales-history/ui/PendientesDelDia";
 import { esFechaISOValida, hoyISO } from "@/shared/lib/fechas";
 
 export default async function HistorialPage({
@@ -36,10 +36,14 @@ export default async function HistorialPage({
           <p className="marca">Mi Kiosco</p>
           <h1>Historial</h1>
         </div>
-        <TotalDelDia total={resultadoResumen.data.total} />
       </header>
       <section className="historial__contenido" aria-label="Ventas del día">
         <SelectorDia fecha={fecha} />
+        <PendientesDelDia
+          fecha={fecha}
+          totalServidor={resultadoResumen.data.total}
+          clienteIds={resultadoResumen.data.clienteIds ?? []}
+        />
         <ListaVentas ventas={resultadoVentas.data} />
       </section>
     </main>

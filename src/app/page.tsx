@@ -10,6 +10,7 @@ export default async function HomePage() {
   return (
     <TotalDiaProvider
       totalInicial={resultado.ok ? resultado.data.total : 0}
+      clienteIdsInicial={resultado.ok ? resultado.data.clienteIds : []}
       errorInicial={resultado.ok ? undefined : resultado.error}
     >
       <InicioPuntoVenta />

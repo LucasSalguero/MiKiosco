@@ -6,12 +6,27 @@ import { fallo, ok } from "@/shared/lib/resultado";
 
 import { listarProductosActivos } from "@/features/products/actions/listar-productos";
 
+const TIMEOUT_CARGA_PRODUCTOS_MS = 8000;
+
 export async function cargarProductos(): Promise<
   Resultado<{ productos: Producto[]; origen: "servidor" | "cache" }>
 > {
   let resultadoServidor;
   try {
-    resultadoServidor = await listarProductosActivos();
+    let temporizador: number | undefined;
+    try {
+      resultadoServidor = await Promise.race([
+        listarProductosActivos(),
+        new Promise<never>((_, reject) => {
+          temporizador = window.setTimeout(
+            () => reject(new Error("Timeout al cargar productos")),
+            TIMEOUT_CARGA_PRODUCTOS_MS,
+          );
+        }),
+      ]);
+    } finally {
+      if (temporizador !== undefined) window.clearTimeout(temporizador);
+    }
   } catch (error) {
     console.error("products.cargarProductos", error);
     resultadoServidor = fallo("No se pudieron cargar los productos.", "network");

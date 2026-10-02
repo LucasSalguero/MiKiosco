@@ -43,6 +43,7 @@ function abrirBaseDeDatos(): Promise<IDBDatabase | null> {
 
 type RequestLike = {
   result: unknown;
+  error: DOMException | null;
   onerror: ((event: Event) => void) | null;
   onsuccess: ((event: Event) => void) | null;
 };
@@ -73,7 +74,7 @@ function ejecutarEnStore<T>(
           };
 
           request.onerror = () => {
-            console.error(`storage.${storeName}`, request.result);
+            console.error(`storage.${storeName}`, request.error);
           };
 
           tx.oncomplete = () => {

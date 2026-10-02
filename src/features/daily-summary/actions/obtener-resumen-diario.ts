@@ -22,6 +22,14 @@ export async function obtenerResumenDiario(fecha?: string): Promise<Resultado<Re
       _sum: { total: true },
       _count: { id: true },
     });
+    const clienteIds = await prisma.venta.findMany({
+      where: {
+        anulada: false,
+        clienteId: { not: null },
+        fecha: { gte: desde, lt: hasta },
+      },
+      select: { clienteId: true },
+    });
 
     const total = resumen._sum.total ? Number(resumen._sum.total.toString()) : 0;
 
@@ -29,6 +37,7 @@ export async function obtenerResumenDiario(fecha?: string): Promise<Resultado<Re
       fecha: fechaISO,
       total,
       cantidadVentas: resumen._count.id,
+      clienteIds: clienteIds.flatMap((venta) => (venta.clienteId ? [venta.clienteId] : [])),
     });
   } catch (error) {
     console.error("daily-summary.obtenerResumenDiario", error);

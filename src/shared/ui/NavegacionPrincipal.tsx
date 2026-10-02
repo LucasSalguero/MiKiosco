@@ -21,7 +21,9 @@ export function NavegacionPrincipal(): ReactElement {
           <Link
             key={destino.href}
             href={destino.href}
-            className={activo ? "navegacion-principal__enlace activo" : "navegacion-principal__enlace"}
+            className={
+              activo ? "navegacion-principal__enlace activo" : "navegacion-principal__enlace"
+            }
             aria-current={activo ? "page" : undefined}
           >
             {destino.etiqueta}

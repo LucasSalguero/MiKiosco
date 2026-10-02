@@ -12,7 +12,11 @@ import { ListaProductos } from "@/features/products/ui/ListaProductos";
 import { useToast } from "@/shared/ui/use-toast";
 import type { DatosProducto, Producto } from "@/shared/types/producto";
 
-export function GestionProductos({ productosIniciales }: { productosIniciales: Producto[] }): ReactElement {
+export function GestionProductos({
+  productosIniciales,
+}: {
+  productosIniciales: Producto[];
+}): ReactElement {
   const [productos, setProductos] = useState(productosIniciales);
   const [productoEditando, setProductoEditando] = useState<Producto | null>(null);
   const router = useRouter();
@@ -32,7 +36,9 @@ export function GestionProductos({ productosIniciales }: { productosIniciales: P
 
     setProductos((actuales) => {
       const sinProductoEditado = actuales.filter((producto) => producto.id !== resultado.data.id);
-      return [...sinProductoEditado, resultado.data].sort((a, b) => a.nombre.localeCompare(b.nombre));
+      return [...sinProductoEditado, resultado.data].sort((a, b) =>
+        a.nombre.localeCompare(b.nombre),
+      );
     });
     setProductoEditando(null);
     mostrar(productoEditando ? "Producto actualizado." : "Producto creado.");
@@ -76,7 +82,10 @@ export function GestionProductos({ productosIniciales }: { productosIniciales: P
         </div>
       </header>
 
-      <section className="gestion-productos__formulario" aria-labelledby="titulo-formulario-producto">
+      <section
+        className="gestion-productos__formulario"
+        aria-labelledby="titulo-formulario-producto"
+      >
         <h2 id="titulo-formulario-producto">
           {productoEditando ? `Editar ${productoEditando.nombre}` : "Nuevo producto"}
         </h2>
@@ -101,7 +110,9 @@ export function GestionProductos({ productosIniciales }: { productosIniciales: P
           />
         ) : (
           <p className="estado-vacio">
-            {productos.length ? "No hay productos activos." : "Todavía no hay productos. Cargá tu primer producto arriba."}
+            {productos.length
+              ? "No hay productos activos."
+              : "Todavía no hay productos. Cargá tu primer producto arriba."}
           </p>
         )}
       </section>

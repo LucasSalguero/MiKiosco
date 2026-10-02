@@ -7,8 +7,17 @@ export function combinarConPendientes(
   pendientes: VentaPendiente[],
   fechaISO: string,
 ): ResumenDiario {
+  const idsEnServidor = new Set(resumen?.clienteIds ?? []);
+  const sumables = pendientes.filter(
+    (pendiente) =>
+      pendiente.estado !== "requiere-revision" && !idsEnServidor.has(pendiente.localId),
+  );
   const totalPendiente = pendientes.reduce((total, pendiente) => {
-    if (fechaLocalISO(new Date(pendiente.venta.fecha)) !== fechaISO) {
+    if (
+      pendiente.estado === "requiere-revision" ||
+      idsEnServidor.has(pendiente.localId) ||
+      fechaLocalISO(new Date(pendiente.venta.fecha)) !== fechaISO
+    ) {
       return total;
     }
 
@@ -27,7 +36,7 @@ export function combinarConPendientes(
     total: base.total + totalPendiente,
     cantidadVentas:
       base.cantidadVentas +
-      pendientes.filter((pendiente) => fechaLocalISO(new Date(pendiente.venta.fecha)) === fechaISO)
+      sumables.filter((pendiente) => fechaLocalISO(new Date(pendiente.venta.fecha)) === fechaISO)
         .length,
   };
 }

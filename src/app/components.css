@@ -338,9 +338,51 @@
 }
 
 .historial .total-del-dia p {
-  margin: 0;
   color: var(--muted);
   font-size: 12px;
+  margin: 0;
+}
+
+.pendientes-historial {
+  display: grid;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.pendientes-historial h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.pendiente-venta__items {
+  display: grid;
+  gap: 4px;
+  margin: 10px 0;
+  padding-left: 20px;
+  color: var(--muted);
+}
+
+.pendiente-venta__error {
+  margin: 8px 0;
+  color: var(--peligro);
+}
+
+.pendiente-venta__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.etiqueta-pendiente {
+  color: var(--verde-oscuro);
+  font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .fila-venta__abrir {
+    flex-wrap: wrap;
+  }
 }
 
 .historial .total-del-dia strong {
