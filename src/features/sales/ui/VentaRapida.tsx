@@ -38,7 +38,7 @@ export function VentaRapida({ productos }: { productos: Producto[] }): ReactElem
     const resultado = await registrarVenta({ fecha: new Date().toISOString(), items: carrito });
     setCobrando(false);
     if (!resultado.ok) {
-      mostrar("No se pudo guardar la venta. Revisá tu conexión e intentá de nuevo.", "error");
+      mostrar(resultado.error, "error");
       return;
     }
     setCarrito(vaciarCarrito());

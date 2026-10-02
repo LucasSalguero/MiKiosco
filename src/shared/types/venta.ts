@@ -34,6 +34,8 @@ export type VentaPendiente = {
   creadaEn: string;
   intentos: number;
   ultimoError?: string;
+  proximoIntento?: string;
+  estado?: "requiere-revision";
 };
 
 export type Carrito = ItemNuevaVenta[];

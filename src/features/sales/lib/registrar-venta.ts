@@ -1,8 +1,8 @@
 import type { NuevaVenta } from "@/shared/types/venta";
 import type { Resultado } from "@/shared/types/resultado";
 import { fallo, ok } from "@/shared/lib/resultado";
-import { crearVenta } from "@/features/sales/actions/crear-venta";
 import { encolarVenta } from "@/features/offline-sync/lib/cola-ventas";
+import { enviarVenta } from "@/features/offline-sync/lib/enviar-venta";
 
 export type VentaRegistrada =
   { estado: "sincronizada"; id: number } | { estado: "pendiente"; localId: string };
@@ -29,7 +29,7 @@ export async function registrarVenta(venta: NuevaVenta): Promise<Resultado<Venta
   }
 
   try {
-    const resultado = await crearVenta(venta, localId);
+    const resultado = await enviarVenta(venta, localId);
     if (resultado.ok) {
       return ok({ estado: "sincronizada", id: resultado.data.id });
     }
