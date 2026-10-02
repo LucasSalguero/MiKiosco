@@ -3,7 +3,6 @@
 import type { ReactElement } from "react";
 
 import { formatearPesos } from "@/shared/lib/moneda";
-import type { ResumenDiario } from "@/shared/types/resumen-diario";
 
 export function TotalDelDia({
   total,

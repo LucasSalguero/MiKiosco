@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 
 import { IndicadorConexion } from "@/features/offline-sync/ui/IndicadorConexion";
+import { useCantidadPendientes } from "@/features/offline-sync/lib/use-cantidad-pendientes";
 import { useEstadoConexion } from "@/features/offline-sync/lib/use-estado-conexion";
 import { TotalDelDia } from "@/features/daily-summary/ui/TotalDelDia";
 import { useTotalDia } from "@/features/daily-summary/ui/TotalDiaProvider";
@@ -10,6 +11,7 @@ import { useTotalDia } from "@/features/daily-summary/ui/TotalDiaProvider";
 export function CabeceraPuntoVenta(): ReactElement {
   const { total } = useTotalDia();
   const { enLinea } = useEstadoConexion();
+  const cantidadPendientes = useCantidadPendientes();
 
   return (
     <header className="cabecera-punto-venta">
@@ -19,7 +21,7 @@ export function CabeceraPuntoVenta(): ReactElement {
       </div>
       <div className="estado-punto-venta">
         <IndicadorConexion />
-        <TotalDelDia total={total} compacto sinConexion={!enLinea} />
+        <TotalDelDia total={total} compacto sinConexion={!enLinea || cantidadPendientes > 0} />
       </div>
     </header>
   );
