@@ -6,25 +6,16 @@ priorizar simplicidad y velocidad de entrega sobre "hacerlo perfecto".
 ## Stack
 
 - Next.js (App Router) + React + TypeScript
-- PWA, sin backend propio en esta etapa: persistencia local vía
-  `localStorage` / `IndexedDB`
+- Backend con Server Actions, Route Handlers, PostgreSQL y Prisma
+- PWA: ventas pendientes en IndexedDB y catálogo local como respaldo offline
 - Estilos con CSS manual en `src/app/globals.css` y `src/app/components.css`; usar clases semánticas.
 
 ## Estructura de carpetas
 
-```text
-/app                → rutas (App Router)
-
-/components          → componentes de UI reutilizables
-
-/lib                 → lógica de dominio (ventas, productos, totales)
-
-/lib/storage.ts      → única capa de acceso a IndexedDB/localStorage
-
-/types               → tipos compartidos (Venta, Producto, etc.)
-```
-
-No crear una nueva carpeta de nivel superior sin justificarlo en el commit.
+Las rutas viven en `src/app/`. La lógica de negocio se organiza por vertical
+slices en `src/features/<dominio>/` (`actions/`, `lib/`, `ui/`); los tipos,
+utilidades, acceso a Prisma y componentes compartidos viven en `src/shared/`.
+El acceso a IndexedDB pasa por `src/shared/lib/storage.ts`.
 
 ## Naming
 
@@ -36,8 +27,9 @@ No crear una nueva carpeta de nivel superior sin justificarlo en el commit.
 ## TypeScript
 
 - `strict: true` en `tsconfig`. No usar `any`.
-- Todo tipo de dominio (venta, producto, día) vive en `/types` y se importa
-  desde ahí — no redefinir tipos inline en cada componente.
+- Todo tipo compartido de dominio vive en `src/shared/types/` y se importa
+  desde ahí; no redefinirlo inline en cada componente.
+- Las funciones de negocio devuelven `Resultado<T>` usando `ok()`/`fallo(msg, code)`.
 
 ## Calidad
 
@@ -73,12 +65,12 @@ No crear una nueva carpeta de nivel superior sin justificarlo en el commit.
 
 - Nunca fallar en silencio: si algo no se pudo guardar, mostrar feedback
   simple al usuario (ej: toast "no se pudo guardar la venta").
-- No hace falta un sistema de logging todavía; `console.error` con
-  contexto alcanza en esta etapa.
+- Registrar errores con `console.error("area.funcion", error)`.
+- Los controles táctiles deben tener al menos 44px de alto.
 
 ## Fuera de alcance por ahora (no implementar sin pedirlo explícitamente)
 
 - Autenticación / multiusuario
-- Backend remoto / sincronización en la nube
+- Autenticación / PIN (Sprint 4)
 - Tests automatizados
 - Internacionalización
