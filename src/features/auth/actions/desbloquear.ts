@@ -11,6 +11,7 @@ import {
 } from "@/shared/lib/autenticacion";
 import { fallo, ok } from "@/shared/lib/resultado";
 import type { Resultado } from "@/shared/types/resultado";
+import { esHashPinValido } from "@/features/auth/lib/hash-pin";
 
 const INTENTOS_MAXIMOS = 5;
 const VENTANA_INTENTOS_MS = 15 * 60 * 1000;
@@ -58,9 +59,20 @@ function registrarFallo(origen: string, ahora: number): void {
 export async function desbloquear(pin: unknown): Promise<Resultado<boolean>> {
   if (!validarPin(pin))
     return fallo("Ingresá un PIN numérico válido de 6 a 12 dígitos.", "validation");
-  if (!process.env.AUTH_PIN_HASH || !process.env.AUTH_SESSION_SECRET) {
-    console.error("auth.desbloquear", "Faltan AUTH_PIN_HASH o AUTH_SESSION_SECRET.");
-    return fallo("La autenticación no está configurada en el servidor.", "unknown");
+  if (!process.env.AUTH_PIN_HASH?.trim()) {
+    console.error("auth.desbloquear", "Falta configurar AUTH_PIN_HASH.");
+    return fallo("Falta configurar AUTH_PIN_HASH en el servidor.", "unknown");
+  }
+  if (!esHashPinValido(process.env.AUTH_PIN_HASH.trim())) {
+    console.error("auth.desbloquear", "AUTH_PIN_HASH tiene un formato inválido.");
+    return fallo(
+      "AUTH_PIN_HASH no tiene un formato válido. Generá un hash nuevo con npm run auth:hash-pin.",
+      "unknown",
+    );
+  }
+  if (!process.env.AUTH_SESSION_SECRET || process.env.AUTH_SESSION_SECRET.length < 32) {
+    console.error("auth.desbloquear", "AUTH_SESSION_SECRET falta o tiene menos de 32 caracteres.");
+    return fallo("Falta configurar AUTH_SESSION_SECRET en el servidor.", "unknown");
   }
   const origen = origenDePeticion((await headers()).get("x-forwarded-for"));
   const ahora = Date.now();

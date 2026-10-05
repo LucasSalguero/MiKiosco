@@ -28,8 +28,12 @@ export async function guardarVenta(
     if (existente) return ok({ id: existente.id });
 
     const { items, fecha } = validado.data;
-    const ids = items.map((item) => item.productoId);
-    const productos = await prisma.producto.findMany({ where: { id: { in: ids } } });
+    const ids = [
+      ...new Set(items.flatMap((item) => (item.productoId === null ? [] : [item.productoId]))),
+    ];
+    const productos = ids.length
+      ? await prisma.producto.findMany({ where: { id: { in: ids } }, select: { id: true } })
+      : [];
     if (productos.length !== ids.length) {
       return fallo("Hay productos que no existen.", "validation");
     }
@@ -40,6 +44,8 @@ export async function guardarVenta(
         data: {
           fecha: new Date(fecha),
           total: new Prisma.Decimal(total.toFixed(2)),
+          tipoPago: validado.data.tipoPago ?? "CONTADO",
+          clienteNombre: validado.data.tipoPago === "FIADO" ? validado.data.clienteNombre : null,
           sincronizada: true,
           clienteId,
         },
@@ -48,6 +54,7 @@ export async function guardarVenta(
         data: items.map((item) => ({
           ventaId: ventaCreada.id,
           productoId: item.productoId,
+          productoNombre: item.productoNombre,
           cantidad: item.cantidad,
           precioUnitario: new Prisma.Decimal(item.precioUnitario.toFixed(2)),
         })),
@@ -57,6 +64,7 @@ export async function guardarVenta(
 
     revalidatePath("/");
     revalidatePath("/historial");
+    revalidatePath("/fiados");
     return ok({ id: nuevaVenta.id });
   } catch (error) {
     console.error("sales.guardarVenta", error);

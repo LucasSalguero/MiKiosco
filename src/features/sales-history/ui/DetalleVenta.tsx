@@ -17,6 +17,12 @@ export function DetalleVenta({
         <h3>Detalle de venta</h3>
         <span>{venta.sincronizada ? "Sincronizada" : "Pendiente"}</span>
       </div>
+      {venta.tipoPago === "FIADO" ? (
+        <p className="etiqueta-pendiente">
+          {venta.clienteNombre ? `Fiado de ${venta.clienteNombre}` : "Fiado"} · pendiente{" "}
+          {formatearPesos(venta.saldoPendiente)}
+        </p>
+      ) : null}
 
       <div className="detalle-venta__items">
         {venta.items.map((item) => (

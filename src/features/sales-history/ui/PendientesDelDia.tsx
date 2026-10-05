@@ -41,11 +41,13 @@ export function PendientesDelDia({
   const sumables = delDia.filter((pendiente) => pendiente.estado !== "requiere-revision");
   const totalPendiente = sumables.reduce(
     (total, pendiente) =>
-      total +
-      pendiente.venta.items.reduce(
-        (subtotal, item) => subtotal + item.cantidad * item.precioUnitario,
-        0,
-      ),
+      pendiente.venta.tipoPago === "FIADO"
+        ? total
+        : total +
+          pendiente.venta.items.reduce(
+            (subtotal, item) => subtotal + item.cantidad * item.precioUnitario,
+            0,
+          ),
     0,
   );
 
@@ -129,7 +131,11 @@ export function PendientesDelDia({
                     <strong
                       className={requiereRevision ? "etiqueta-anulada" : "etiqueta-pendiente"}
                     >
-                      {requiereRevision ? "Requiere revisión" : "Pendiente"}
+                      {requiereRevision
+                        ? "Requiere revisión"
+                        : pendiente.venta.tipoPago === "FIADO"
+                          ? `Fiado de ${pendiente.venta.clienteNombre}`
+                          : "Pendiente"}
                     </strong>
                   </div>
                   <ul className="pendiente-venta__items">

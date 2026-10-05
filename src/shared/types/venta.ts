@@ -1,6 +1,6 @@
 export type VentaItem = {
   id: number;
-  productoId: number;
+  productoId: number | null;
   productoNombre: string;
   cantidad: number;
   precioUnitario: number;
@@ -13,11 +13,16 @@ export type Venta = {
   total: number;
   sincronizada: boolean;
   anulada: boolean;
+  tipoPago: TipoPago;
+  clienteNombre: string | null;
+  saldoPendiente: number;
   items: VentaItem[];
 };
 
+export type TipoPago = "CONTADO" | "FIADO";
+
 export type ItemNuevaVenta = {
-  productoId: number;
+  productoId: number | null;
   productoNombre: string;
   cantidad: number;
   precioUnitario: number;
@@ -26,6 +31,8 @@ export type ItemNuevaVenta = {
 export type NuevaVenta = {
   fecha: string;
   items: ItemNuevaVenta[];
+  tipoPago?: TipoPago;
+  clienteNombre?: string;
 };
 
 export type VentaPendiente = {

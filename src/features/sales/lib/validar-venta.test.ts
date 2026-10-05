@@ -20,6 +20,7 @@ describe("validarNuevaVenta", () => {
       data: {
         fecha: ventaBase.fecha,
         items: [{ ...ventaBase.items[0], precioUnitario: 10.23 }],
+        tipoPago: "CONTADO",
       },
     });
   });
@@ -66,5 +67,28 @@ describe("validarNuevaVenta", () => {
       ok: false,
       error: "Hay un producto inválido en la venta.",
     });
+  });
+
+  it("acepta conceptos libres y requiere cliente para registrar un fiado", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-10-02T12:00:00.000Z"));
+    const conceptoLibre = {
+      fecha: ventaBase.fecha,
+      items: [
+        { productoId: null, productoNombre: "Golosinas varias", cantidad: 1, precioUnitario: 50 },
+      ],
+    };
+
+    expect(validarNuevaVenta(conceptoLibre)).toMatchObject({
+      ok: true,
+      data: { items: [{ productoId: null, productoNombre: "Golosinas varias" }] },
+    });
+    expect(validarNuevaVenta({ ...conceptoLibre, tipoPago: "FIADO" })).toMatchObject({
+      ok: false,
+      error: "Ingresá el nombre del cliente para registrar el fiado.",
+    });
+    expect(
+      validarNuevaVenta({ ...conceptoLibre, tipoPago: "FIADO", clienteNombre: " Ana " }),
+    ).toMatchObject({ ok: true, data: { tipoPago: "FIADO", clienteNombre: "Ana" } });
   });
 });
