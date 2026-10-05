@@ -16,6 +16,7 @@ export function combinarConPendientes(
     if (
       pendiente.estado === "requiere-revision" ||
       idsEnServidor.has(pendiente.localId) ||
+      pendiente.venta.tipoPago === "FIADO" ||
       fechaLocalISO(new Date(pendiente.venta.fecha)) !== fechaISO
     ) {
       return total;

@@ -35,6 +35,22 @@ export function cambiarCantidad(carrito: Carrito, productoId: number, cantidad: 
   return carrito.map((item) => (item.productoId === productoId ? { ...item, cantidad } : item));
 }
 
+export function agregarConcepto(
+  carrito: Carrito,
+  productoNombre: string,
+  precioUnitario: number,
+): Carrito {
+  return [
+    ...carrito,
+    {
+      productoId: null,
+      productoNombre: productoNombre.trim() || "Venta Rápida / Concepto vario",
+      cantidad: 1,
+      precioUnitario,
+    },
+  ];
+}
+
 export function quitarProducto(carrito: Carrito, productoId: number): Carrito {
   return carrito.filter((item) => item.productoId !== productoId);
 }

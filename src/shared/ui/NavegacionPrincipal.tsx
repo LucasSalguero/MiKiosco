@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import type { ReactElement } from "react";
+import { useSyncExternalStore, type ReactElement } from "react";
 
 import { cerrarSesion } from "@/features/auth/actions/cerrar-sesion";
 import { useToast } from "@/shared/ui/use-toast";
@@ -10,11 +10,19 @@ import { useToast } from "@/shared/ui/use-toast";
 const destinos = [
   { href: "/", etiqueta: "Vender" },
   { href: "/historial", etiqueta: "Historial" },
+  { href: "/fiados", etiqueta: "Fiados" },
   { href: "/productos", etiqueta: "Productos" },
 ];
 
+const suscribirse = () => () => {};
+
 export function NavegacionPrincipal(): ReactElement {
   const pathname = usePathname();
+  const pathnameActivo = useSyncExternalStore(
+    suscribirse,
+    () => pathname ?? "",
+    () => "",
+  );
   const router = useRouter();
   const { mostrar } = useToast();
 
@@ -37,7 +45,9 @@ export function NavegacionPrincipal(): ReactElement {
     <>
       <nav className="navegacion-principal" aria-label="Navegación principal">
         {destinos.map((destino) => {
-          const activo = pathname === destino.href;
+          const activo =
+            pathnameActivo === destino.href ||
+            (destino.href === "/fiados" && pathnameActivo.startsWith("/fiados/"));
           return (
             <Link
               key={destino.href}

@@ -3,4 +3,5 @@ export type ResumenDiario = {
   total: number;
   cantidadVentas: number;
   clienteIds?: string[];
+  cantidadCobros?: number;
 };

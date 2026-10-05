@@ -26,24 +26,31 @@ export async function listarResumenUltimosDias(
     const { desde } = rangoDelDia(desdeISO);
     const { hasta } = rangoDelDia(hoy);
 
-    const ventas = await prisma.venta.findMany({
-      where: {
-        anulada: false,
-        fecha: {
-          gte: desde,
-          lt: hasta,
-        },
-      },
-      orderBy: { fecha: "asc" },
-    });
+    const where = { anulada: false, fecha: { gte: desde, lt: hasta } };
+    const [ventas, cobros] = await Promise.all([
+      prisma.venta.findMany({ where, orderBy: { fecha: "asc" } }),
+      prisma.cobroFiado.findMany({
+        where: { fecha: { gte: desde, lt: hasta }, venta: { anulada: false } },
+        select: { fecha: true, monto: true },
+        orderBy: { fecha: "asc" },
+      }),
+    ]);
 
     const resumen = new Map<string, ResumenDiario>();
 
     for (const venta of ventas) {
       const fecha = fechaLocalISO(venta.fecha);
       const actual = resumen.get(fecha) ?? { fecha, total: 0, cantidadVentas: 0 };
-      actual.total += Number(venta.total.toString());
+      if (venta.tipoPago === "CONTADO") actual.total += Number(venta.total.toString());
       actual.cantidadVentas += 1;
+      resumen.set(fecha, actual);
+    }
+
+    for (const cobro of cobros) {
+      const fecha = fechaLocalISO(cobro.fecha);
+      const actual = resumen.get(fecha) ?? { fecha, total: 0, cantidadVentas: 0 };
+      actual.total = Number((actual.total + Number(cobro.monto.toString())).toFixed(2));
+      actual.cantidadCobros = (actual.cantidadCobros ?? 0) + 1;
       resumen.set(fecha, actual);
     }
 

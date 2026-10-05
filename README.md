@@ -43,7 +43,7 @@ TZ="America/Argentina/Buenos_Aires"
 No subir `.env` al repositorio. El archivo `.env.example` sí debe versionarse.
 
 Generar el hash de un PIN numérico de 6 a 12 dígitos desde una terminal
-interactiva (el PIN no se muestra):
+interactiva (la consola muestra asteriscos en lugar de los dígitos):
 
 ```bash
 npm run auth:hash-pin
@@ -56,6 +56,11 @@ de al menos 32 caracteres, por ejemplo:
 ```bash
 node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))"
 ```
+
+El hash usa el formato `scrypt-v1:<salt>:<digest>` sin signos `$`, para evitar
+que el cargador de variables de Next.js expanda partes del hash como referencias
+a otras variables. Los hashes del formato anterior deben regenerarse y el
+servidor debe reiniciarse luego de editar `.env`.
 
 La sesión se guarda en una cookie `HttpOnly`, `SameSite=Strict` y `Secure` en
 producción, y vence a las 12 horas. Sin ambas variables de autenticación

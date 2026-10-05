@@ -29,6 +29,18 @@ export function validarNuevaVenta(venta: unknown): Resultado<NuevaVenta> {
     return fallo("La venta tiene más de 30 días y requiere revisión.", "validation");
   }
 
+  const tipoPago = venta.tipoPago === undefined ? "CONTADO" : venta.tipoPago;
+  if (tipoPago !== "CONTADO" && tipoPago !== "FIADO") {
+    return fallo("El método de pago no es válido.", "validation");
+  }
+  const clienteNombre = typeof venta.clienteNombre === "string" ? venta.clienteNombre.trim() : "";
+  if (tipoPago === "FIADO" && !clienteNombre) {
+    return fallo("Ingresá el nombre del cliente para registrar el fiado.", "validation");
+  }
+  if (clienteNombre.length > 120) {
+    return fallo("El nombre del cliente no puede superar los 120 caracteres.", "validation");
+  }
+
   const items: ItemNuevaVenta[] = [];
   let totalEnCentavos = 0;
   for (const item of venta.items) {
@@ -37,7 +49,7 @@ export function validarNuevaVenta(venta: unknown): Resultado<NuevaVenta> {
       typeof item.productoNombre !== "string" ||
       typeof item.cantidad !== "number" ||
       typeof item.precioUnitario !== "number" ||
-      typeof item.productoId !== "number"
+      (typeof item.productoId !== "number" && item.productoId !== null)
     ) {
       return fallo("Hay un producto inválido en la venta.", "validation");
     }
@@ -62,7 +74,7 @@ export function validarNuevaVenta(venta: unknown): Resultado<NuevaVenta> {
       return fallo("El precio unitario no es válido.", "validation");
     }
 
-    if (!esIdEnteroValido(item.productoId)) {
+    if (item.productoId !== null && !esIdEnteroValido(item.productoId)) {
       return fallo("El producto es inválido.", "validation");
     }
 
@@ -83,5 +95,10 @@ export function validarNuevaVenta(venta: unknown): Resultado<NuevaVenta> {
     });
   }
 
-  return ok({ fecha: venta.fecha, items });
+  return ok({
+    fecha: venta.fecha,
+    items,
+    tipoPago,
+    ...(tipoPago === "FIADO" ? { clienteNombre } : {}),
+  });
 }

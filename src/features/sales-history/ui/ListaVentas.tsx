@@ -56,6 +56,11 @@ export function ListaVentas({ ventas }: { ventas: Venta[] }): ReactElement {
                 }).format(new Date(venta.fecha))}
               </span>
               <span className="fila-venta__total">{formatearPesos(venta.total)}</span>
+              {venta.tipoPago === "FIADO" ? (
+                <span className="etiqueta-pendiente">
+                  Fiado · saldo {formatearPesos(venta.saldoPendiente)}
+                </span>
+              ) : null}
               {venta.anulada ? <span className="etiqueta-anulada">Anulada</span> : null}
             </button>
             {ventaAbierta === venta.id ? (

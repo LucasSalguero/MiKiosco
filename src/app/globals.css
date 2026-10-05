@@ -349,6 +349,117 @@ input:focus-visible {
   .punto-venta {
     padding: 0 24px 40px;
   }
+
+  .venta-rapida {
+    display: grid;
+    gap: 10px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--borde);
+    border-bottom: 1px solid var(--borde);
+    background: #fbfcfd;
+  }
+  .venta-rapida h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+  .boton-rapido {
+    min-height: 48px;
+  }
+  .opciones-pago {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .opcion-pago {
+    min-height: 48px;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--tinta);
+    font-weight: 700;
+  }
+  .opcion-pago.activa {
+    border-color: var(--verde);
+    background: #effbf5;
+    color: var(--verde-oscuro);
+  }
+  .campo-cliente-fiado {
+    margin-bottom: 12px;
+  }
+  .cuentas-corrientes {
+    display: grid;
+    gap: 12px;
+    padding: 20px 0;
+  }
+  .cuenta-cliente {
+    overflow: hidden;
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    background: #fff;
+  }
+  .cuenta-cliente__encabezado {
+    display: flex;
+    width: 100%;
+    min-height: 64px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 0;
+    background: #fff;
+    color: var(--tinta);
+    text-align: left;
+  }
+  .cuenta-cliente__encabezado strong {
+    font-size: 17px;
+  }
+  .cuenta-cliente__encabezado span {
+    color: var(--verde-oscuro);
+    font-weight: 800;
+  }
+  .cuenta-cliente__ventas {
+    display: grid;
+    gap: 12px;
+    padding: 0 12px 12px;
+  }
+  .venta-fiada {
+    padding: 14px;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: #fbfcfd;
+  }
+  .venta-fiada__encabezado {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .venta-fiada ul {
+    margin: 10px 0;
+    padding-left: 20px;
+    color: var(--muted);
+  }
+  .venta-fiada p {
+    margin: 8px 0;
+    font-weight: 700;
+  }
+  .historial-cobros {
+    font-size: 13px;
+  }
+  .formulario-cobro {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .boton-cobrar-fiado {
+    min-height: 48px;
+  }
+  @media (min-width: 760px) {
+    .formulario-cobro {
+      grid-template-columns: minmax(120px, 1fr) auto;
+      align-items: end;
+    }
+  }
   .zona-venta {
     grid-template-columns: minmax(0, 1fr) 350px;
     align-items: start;

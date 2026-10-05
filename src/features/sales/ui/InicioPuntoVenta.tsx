@@ -44,9 +44,8 @@ export function InicioPuntoVenta(): ReactElement {
       {productos ? (
         <>
           {desdeCache ? <p className="aviso-cache">Catálogo guardado en este dispositivo</p> : null}
-          {productos.length ? (
-            <VentaRapida productos={productos} />
-          ) : (
+          <VentaRapida productos={productos} />
+          {!productos.length ? (
             <section className="estado-vacio-productos">
               <h2>Cargá tu primer producto</h2>
               <p>Agregá productos para empezar a registrar ventas.</p>
@@ -54,7 +53,7 @@ export function InicioPuntoVenta(): ReactElement {
                 Ir a Productos
               </Link>
             </section>
-          )}
+          ) : null}
         </>
       ) : error ? (
         <section className="pantalla-estado pantalla-error" role="alert">

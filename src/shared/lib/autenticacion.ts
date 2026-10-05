@@ -1,7 +1,8 @@
 import "server-only";
 
-import { createHmac, scryptSync, timingSafeEqual } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
+import { verificarHashPin } from "@/features/auth/lib/hash-pin";
 
 export const COOKIE_SESION = "mi-kiosco-session";
 export const DURACION_SESION_SEGUNDOS = 12 * 60 * 60;
@@ -46,48 +47,12 @@ export function verificarTokenSesion(token: string | undefined, ahora = Date.now
   }
 }
 
-function verificarPin(pin: string, hashConfigurado: string | undefined): boolean {
-  if (!hashConfigurado) return false;
-
-  const [algoritmo, n, r, p, salCodificada, hashCodificado, extra] = hashConfigurado.split("$");
-  if (
-    algoritmo !== "scrypt" ||
-    n !== "16384" ||
-    r !== "8" ||
-    p !== "1" ||
-    extra !== undefined ||
-    !/^\d+$/.test(n ?? "") ||
-    !/^\d+$/.test(r ?? "") ||
-    !/^\d+$/.test(p ?? "") ||
-    !salCodificada ||
-    !hashCodificado
-  ) {
-    return false;
-  }
-
-  try {
-    const sal = Buffer.from(salCodificada, "base64url");
-    const esperado = Buffer.from(hashCodificado, "base64url");
-    if (!sal.length || esperado.length !== 64) return false;
-
-    const derivado = scryptSync(pin, sal, esperado.length, {
-      N: 16384,
-      r: 8,
-      p: 1,
-      maxmem: 64 * 1024 * 1024,
-    });
-    return timingSafeEqual(derivado, esperado);
-  } catch {
-    return false;
-  }
-}
-
 export function validarPin(pin: unknown): pin is string {
   return typeof pin === "string" && /^\d{6,12}$/.test(pin);
 }
 
 export function verificarPinConfigurado(pin: string): boolean {
-  return verificarPin(pin, process.env.AUTH_PIN_HASH);
+  return verificarHashPin(pin, process.env.AUTH_PIN_HASH?.trim());
 }
 
 export async function tieneSesionValida(): Promise<boolean> {

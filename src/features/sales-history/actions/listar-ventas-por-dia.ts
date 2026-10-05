@@ -28,6 +28,7 @@ export async function listarVentasPorDia(fecha: string): Promise<Resultado<Venta
             producto: true,
           },
         },
+        cobros: { select: { monto: true } },
       },
       orderBy: { fecha: "desc" },
     });

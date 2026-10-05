@@ -19,6 +19,7 @@ export async function anularVenta(id: number): Promise<Resultado<boolean>> {
     await prisma.venta.update({ where: { id }, data: { anulada: true } });
     revalidatePath("/");
     revalidatePath("/historial");
+    revalidatePath("/fiados");
     return ok(true);
   } catch (error) {
     console.error("sales.anularVenta", error);

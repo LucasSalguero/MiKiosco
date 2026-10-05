@@ -6,31 +6,51 @@ datasource db {
   provider = "postgresql"
 }
 
+enum TipoPago {
+  CONTADO
+  FIADO
+}
+
 model Producto {
-  id         Int          @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   nombre     String
   precio     Decimal
-  activo     Boolean      @default(true)
-  createdAt  DateTime     @default(now())
+  activo     Boolean     @default(true)
+  createdAt  DateTime    @default(now())
   ventaItems VentaItem[]
 }
 
 model Venta {
-  id           Int         @id @default(autoincrement())
-  clienteId    String?     @unique
-  fecha        DateTime    @default(now())
-  total        Decimal
-  sincronizada Boolean     @default(true)
-  anulada      Boolean     @default(false)
-  items        VentaItem[]
+  id            Int          @id @default(autoincrement())
+  clienteId     String?      @unique
+  fecha         DateTime     @default(now())
+  total         Decimal
+  tipoPago      TipoPago     @default(CONTADO)
+  clienteNombre String?
+  sincronizada  Boolean      @default(true)
+  anulada       Boolean      @default(false)
+  items         VentaItem[]
+  cobros        CobroFiado[]
 }
 
 model VentaItem {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   ventaId        Int
-  productoId     Int
+  productoId     Int?
+  productoNombre String
   cantidad       Int
   precioUnitario Decimal
-  venta          Venta    @relation(fields: [ventaId], references: [id], onDelete: Cascade)
-  producto       Producto @relation(fields: [productoId], references: [id], onDelete: Restrict)
+  venta          Venta     @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+  producto       Producto? @relation(fields: [productoId], references: [id], onDelete: Restrict)
+}
+
+model CobroFiado {
+  id      Int      @id @default(autoincrement())
+  ventaId Int
+  monto   Decimal
+  fecha   DateTime @default(now())
+  venta   Venta    @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+
+  @@index([fecha])
+  @@index([ventaId])
 }
