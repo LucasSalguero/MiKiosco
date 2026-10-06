@@ -1,13 +1,13 @@
 "use server";
 
 import prisma from "@/shared/db/client";
-import { Prisma } from "@prisma/client";
 import { fallo, ok } from "@/shared/lib/resultado";
 import { tieneSesionValida } from "@/shared/lib/autenticacion";
 import { esIdEnteroValido } from "@/shared/lib/validar-id";
 import { obtenerSaldoCliente } from "@/features/fiados/lib/obtener-saldo-cliente";
 import { decimalANumero } from "@/shared/lib/moneda";
 import type { Resultado } from "@/shared/types/resultado";
+import { calcularSaldosVentas } from "@/features/fiados/lib/calcular-saldos-ventas";
 
 export type MovimientoCuenta =
   | {
@@ -62,6 +62,15 @@ export async function obtenerCuentaCliente(
       obtenerSaldoCliente(prisma, clienteFiadoId),
     ]);
     if (!cliente) return fallo("No se encontró el cliente.", "validation");
+    const saldosPorVenta = calcularSaldosVentas(
+      ventas.map((venta) => ({
+        id: venta.id,
+        fecha: venta.fecha,
+        total: venta.total,
+        pagosAsociados: venta.pagos.map((pago) => pago.monto),
+      })),
+      pagos.filter((pago) => !pago.anulado && pago.ventaId === null).map((pago) => pago.monto),
+    );
 
     const movimientos: MovimientoCuenta[] = [
       ...ventas.map((venta) => ({
@@ -71,13 +80,7 @@ export async function obtenerCuentaCliente(
         monto: decimalANumero(venta.total),
         estadoPago: venta.estadoPago as "A_COBRAR_HOY" | "FIADA",
         autorizadaPor: venta.autorizadaPor,
-        saldoPendiente: Math.max(
-          0,
-          new Prisma.Decimal(venta.total)
-            .minus(venta.pagos.reduce((suma, pago) => suma.plus(pago.monto), new Prisma.Decimal(0)))
-            .toDecimalPlaces(2)
-            .toNumber(),
-        ),
+        saldoPendiente: saldosPorVenta.get(venta.id) ?? 0,
         items: venta.items.map((item) => ({
           id: item.id,
           nombre: item.productoNombre,

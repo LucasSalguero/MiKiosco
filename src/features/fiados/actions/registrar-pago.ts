@@ -10,6 +10,7 @@ import { esIdEnteroValido } from "@/shared/lib/validar-id";
 import { redondearMonto } from "@/shared/lib/moneda";
 import { obtenerSaldoCliente } from "@/features/fiados/lib/obtener-saldo-cliente";
 import { resolverPagoIdempotente } from "@/features/fiados/lib/resolver-pago-idempotente";
+import { calcularSaldosVentas } from "@/features/fiados/lib/calcular-saldos-ventas";
 import type { MedioPago } from "@/shared/types/venta";
 import type { Resultado } from "@/shared/types/resultado";
 
@@ -84,26 +85,37 @@ export async function registrarPago(
       }
 
       if (typeof ventaId === "number") {
-        const venta = await tx.venta.findUnique({
-          where: { id: ventaId },
-          select: { clienteFiadoId: true, estadoPago: true, anulada: true, total: true },
+        const ventasCliente = await tx.venta.findMany({
+          where: {
+            clienteFiadoId,
+            anulada: false,
+            estadoPago: { in: ["A_COBRAR_HOY", "FIADA"] },
+          },
+          select: {
+            id: true,
+            fecha: true,
+            total: true,
+            pagos: { where: { anulado: false }, select: { monto: true } },
+          },
         });
-        if (
-          !venta ||
-          venta.clienteFiadoId !== clienteFiadoId ||
-          venta.anulada ||
-          venta.estadoPago === "PAGADA"
-        ) {
+        const venta = ventasCliente.find((item) => item.id === ventaId);
+        if (!venta) {
           return fallo("La venta ya no tiene un saldo fiado.", "validation");
         }
-        const pagosVenta = await tx.pago.aggregate({
-          where: { ventaId, anulado: false },
-          _sum: { monto: true },
+        const pagosGenerales = await tx.pago.findMany({
+          where: { clienteFiadoId, ventaId: null, anulado: false },
+          select: { monto: true },
         });
-        const restanteVenta = new Prisma.Decimal(venta.total)
-          .minus(pagosVenta._sum.monto ?? 0)
-          .toDecimalPlaces(2)
-          .toNumber();
+        const saldosPorVenta = calcularSaldosVentas(
+          ventasCliente.map((item) => ({
+            id: item.id,
+            fecha: item.fecha,
+            total: item.total,
+            pagosAsociados: item.pagos.map((pago) => pago.monto),
+          })),
+          pagosGenerales.map((pago) => pago.monto),
+        );
+        const restanteVenta = saldosPorVenta.get(ventaId) ?? 0;
         if (importe > restanteVenta) {
           return fallo("El pago supera el saldo pendiente de esa venta.", "validation");
         }
@@ -170,14 +182,35 @@ export async function cobrarVentaPuntual(
     if (!venta || venta.clienteFiadoId === null || venta.anulada || venta.estadoPago === "PAGADA") {
       return fallo("La venta ya no tiene un saldo fiado.", "validation");
     }
-    const pagosVenta = await prisma.pago.aggregate({
-      where: { ventaId, anulado: false },
-      _sum: { monto: true },
-    });
-    const restante = new Prisma.Decimal(venta.total)
-      .minus(pagosVenta._sum.monto ?? 0)
-      .toDecimalPlaces(2)
-      .toNumber();
+    const [ventasCliente, pagosGenerales] = await Promise.all([
+      prisma.venta.findMany({
+        where: {
+          clienteFiadoId: venta.clienteFiadoId,
+          anulada: false,
+          estadoPago: { in: ["A_COBRAR_HOY", "FIADA"] },
+        },
+        select: {
+          id: true,
+          fecha: true,
+          total: true,
+          pagos: { where: { anulado: false }, select: { monto: true } },
+        },
+      }),
+      prisma.pago.findMany({
+        where: { clienteFiadoId: venta.clienteFiadoId, ventaId: null, anulado: false },
+        select: { monto: true },
+      }),
+    ]);
+    const saldosPorVenta = calcularSaldosVentas(
+      ventasCliente.map((item) => ({
+        id: item.id,
+        fecha: item.fecha,
+        total: item.total,
+        pagosAsociados: item.pagos.map((pago) => pago.monto),
+      })),
+      pagosGenerales.map((pago) => pago.monto),
+    );
+    const restante = saldosPorVenta.get(ventaId) ?? 0;
     if (restante <= 0) return fallo("Esta venta ya está cobrada.", "validation");
 
     return registrarPago(venta.clienteFiadoId, restante, medio, claveOperacion, ventaId);
