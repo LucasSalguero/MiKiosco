@@ -15,14 +15,19 @@ export function DetalleVenta({
     <div className={`detalle-venta${venta.anulada ? " detalle-venta--anulada" : ""}`}>
       <div className="detalle-venta__cabecera">
         <h3>Detalle de venta</h3>
-        <span>{venta.sincronizada ? "Sincronizada" : "Pendiente"}</span>
+        <span>{venta.sincronizada ? "En el servidor" : "Pendiente de sincronizar"}</span>
       </div>
-      {venta.tipoPago === "FIADO" ? (
-        <p className="etiqueta-pendiente">
-          {venta.clienteNombre ? `Fiado de ${venta.clienteNombre}` : "Fiado"} · pendiente{" "}
-          {formatearPesos(venta.saldoPendiente)}
-        </p>
-      ) : null}
+      <p className="etiqueta-pendiente">
+        {venta.estadoPago === "PAGADA"
+          ? "Cobrada"
+          : venta.saldoPendiente <= 0
+            ? "Fiado cobrado"
+            : venta.estadoPago === "A_COBRAR_HOY"
+              ? `A cobrar hoy · saldo ${formatearPesos(venta.saldoPendiente)}`
+              : `Cuenta mensual · saldo ${formatearPesos(venta.saldoPendiente)}`}
+        {venta.estadoPago !== "PAGADA" && venta.clienteNombre ? ` · ${venta.clienteNombre}` : ""}
+      </p>
+      {venta.autorizadaPor ? <p>Autorizó: {venta.autorizadaPor}</p> : null}
 
       <div className="detalle-venta__items">
         {venta.items.map((item) => (

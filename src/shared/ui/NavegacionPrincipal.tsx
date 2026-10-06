@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useSyncExternalStore, type ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 
 import { cerrarSesion } from "@/features/auth/actions/cerrar-sesion";
 import { useToast } from "@/shared/ui/use-toast";
@@ -14,17 +14,17 @@ const destinos = [
   { href: "/productos", etiqueta: "Productos" },
 ];
 
-const suscribirse = () => () => {};
-
 export function NavegacionPrincipal(): ReactElement {
   const pathname = usePathname();
-  const pathnameActivo = useSyncExternalStore(
-    suscribirse,
-    () => pathname ?? "",
-    () => "",
-  );
+  const [pathnameActivo, setPathnameActivo] = useState<string | null>(null);
   const router = useRouter();
   const { mostrar } = useToast();
+
+  useEffect(() => {
+    // La ruta solo se usa para el estilo; se aplica después de hidratar el HTML inicial.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPathnameActivo(pathname ?? "");
+  }, [pathname]);
 
   const bloquear = async () => {
     try {
@@ -47,7 +47,7 @@ export function NavegacionPrincipal(): ReactElement {
         {destinos.map((destino) => {
           const activo =
             pathnameActivo === destino.href ||
-            (destino.href === "/fiados" && pathnameActivo.startsWith("/fiados/"));
+            (destino.href === "/fiados" && pathnameActivo?.startsWith("/fiados/") === true);
           return (
             <Link
               key={destino.href}

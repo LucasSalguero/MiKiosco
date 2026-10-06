@@ -1,3 +1,6 @@
+export type EstadoPago = "PAGADA" | "A_COBRAR_HOY" | "FIADA";
+export type MedioPago = "EFECTIVO" | "TRANSFERENCIA";
+
 export type VentaItem = {
   id: number;
   productoId: number | null;
@@ -13,13 +16,20 @@ export type Venta = {
   total: number;
   sincronizada: boolean;
   anulada: boolean;
-  tipoPago: TipoPago;
+  estadoPago: EstadoPago;
+  clienteFiadoId: number | null;
   clienteNombre: string | null;
+  autorizadaPor: string | null;
   saldoPendiente: number;
   items: VentaItem[];
 };
 
-export type TipoPago = "CONTADO" | "FIADO";
+export type Cliente = {
+  id: number;
+  nombre: string;
+  telefono: string | null;
+  activo: boolean;
+};
 
 export type ItemNuevaVenta = {
   productoId: number | null;
@@ -31,8 +41,11 @@ export type ItemNuevaVenta = {
 export type NuevaVenta = {
   fecha: string;
   items: ItemNuevaVenta[];
-  tipoPago?: TipoPago;
-  clienteNombre?: string;
+  estadoPago?: EstadoPago;
+  clienteFiadoId?: number;
+  clienteNuevoNombre?: string;
+  autorizadaPor?: string;
+  autorizacionConfirmada?: boolean;
 };
 
 export type VentaPendiente = {

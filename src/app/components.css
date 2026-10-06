@@ -790,3 +790,303 @@
     min-width: 0;
   }
 }
+
+.resumen-historial {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.resumen-historial article,
+.cliente-con-saldo,
+.venta-por-cobrar,
+.registrar-pago,
+.movimiento-cuenta {
+  padding: 14px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.resumen-historial article,
+.cliente-con-saldo {
+  display: grid;
+  gap: 6px;
+}
+
+.resumen-historial span,
+.cliente-con-saldo span,
+.venta-por-cobrar small,
+.fiados-seccion__encabezado p,
+.registrar-pago > p,
+.movimiento-cuenta small {
+  color: var(--muted);
+}
+
+.resumen-historial strong {
+  font-size: 18px;
+}
+
+.recordatorio-fiados {
+  display: block;
+  margin-top: 8px;
+  color: var(--verde-oscuro);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.fiados-inicio,
+.cuenta-cliente-pagina {
+  display: grid;
+  width: min(920px, 100%);
+  gap: 22px;
+  margin: 0 auto;
+  padding: 18px 16px 112px;
+}
+
+.fiados-inicio h2,
+.cuenta-cliente-pagina h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.fiados-por-cobrar {
+  padding: 16px;
+  border: 1px solid #e9d29a;
+  border-radius: 10px;
+  background: #fff9e9;
+}
+
+.fiados-cuentas {
+  display: grid;
+  gap: 12px;
+}
+
+.fiados-seccion__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.fiados-seccion__encabezado p {
+  margin: 5px 0 0;
+}
+
+.fiados-medio {
+  width: min(220px, 45%);
+}
+
+.venta-por-cobrar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.venta-por-cobrar > div {
+  display: grid;
+  gap: 5px;
+}
+
+.venta-por-cobrar a,
+.cliente-con-saldo {
+  color: var(--tinta);
+  text-decoration: none;
+}
+
+.venta-por-cobrar > strong {
+  white-space: nowrap;
+}
+
+.cliente-con-saldo {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 56px;
+}
+
+.dialogo-fiado,
+.dialogo-cierre-dia {
+  display: grid;
+  gap: 14px;
+  width: min(520px, calc(100vw - 32px));
+  max-height: min(85dvh, 720px);
+  overflow-y: auto;
+}
+
+.dialogo-fiado p,
+.dialogo-cierre-dia p {
+  margin: 0;
+}
+
+.dialogo-fiado .campo-formulario small {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.opciones-fiado {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+
+.opciones-fiado label,
+.confirmacion-autorizacion {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 10px;
+}
+
+.opciones-fiado input,
+.confirmacion-autorizacion input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--verde);
+}
+
+.lista-cierre-dia {
+  display: grid;
+  max-height: 35dvh;
+  gap: 8px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-cierre-dia li,
+.movimiento-cuenta__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cuenta-cliente-pagina {
+  padding-top: 24px;
+}
+
+.enlace-volver {
+  min-height: 44px;
+  color: var(--verde-oscuro);
+  font-weight: 700;
+}
+
+.cuenta-cliente-pagina__encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cuenta-cliente-pagina__encabezado h1 {
+  margin: 4px 0;
+}
+
+.cuenta-cliente-pagina__encabezado > strong {
+  white-space: nowrap;
+}
+
+.registrar-pago {
+  display: grid;
+  gap: 12px;
+}
+
+.formulario-pago {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.lista-movimientos-cuenta {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.movimiento-cuenta {
+  display: grid;
+  gap: 10px;
+}
+
+.movimiento-cuenta__encabezado > div {
+  display: grid;
+  gap: 4px;
+}
+
+.movimiento-cuenta ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.movimiento-cuenta p {
+  margin: 0;
+}
+
+.movimiento-cuenta--anulado {
+  opacity: 0.7;
+}
+
+.etiqueta-cobrada {
+  color: var(--verde-oscuro);
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .resumen-historial {
+    gap: 8px;
+  }
+
+  .resumen-historial article {
+    padding: 12px;
+  }
+
+  .resumen-historial strong {
+    font-size: 16px;
+  }
+
+  .fiados-seccion__encabezado,
+  .cuenta-cliente-pagina__encabezado {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .fiados-medio {
+    width: 100%;
+  }
+
+  .venta-por-cobrar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .venta-por-cobrar button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .formulario-pago {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 759px) {
+  .cabecera-punto-venta {
+    flex-wrap: wrap;
+  }
+
+  .recordatorio-fiados {
+    order: 3;
+    flex-basis: 100%;
+    margin-top: 0;
+  }
+}

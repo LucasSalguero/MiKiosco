@@ -28,13 +28,14 @@ function esResultado(valor: unknown): valor is Resultado<{ id: number }> {
 
 export async function enviarVenta(
   venta: NuevaVenta,
-  clienteId: string,
+  claveOperacion: string,
+  esReintentoOffline = false,
 ): Promise<Resultado<{ id: number }>> {
   try {
     const respuesta = await fetch("/api/ventas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ venta, clienteId }),
+      body: JSON.stringify({ venta, claveOperacion, esReintentoOffline }),
       signal: AbortSignal.timeout(8000),
     });
     const cuerpo: unknown = await respuesta.json();

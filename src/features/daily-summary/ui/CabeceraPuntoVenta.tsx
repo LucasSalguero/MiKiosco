@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
+import Link from "next/link";
 
 import { IndicadorConexion } from "@/features/offline-sync/ui/IndicadorConexion";
 import { useCantidadPendientes } from "@/features/offline-sync/lib/use-cantidad-pendientes";
@@ -9,7 +10,7 @@ import { TotalDelDia } from "@/features/daily-summary/ui/TotalDelDia";
 import { useTotalDia } from "@/features/daily-summary/ui/TotalDiaProvider";
 
 export function CabeceraPuntoVenta(): ReactElement {
-  const { total } = useTotalDia();
+  const { total, cantidadACobrarHoy } = useTotalDia();
   const { enLinea } = useEstadoConexion();
   const cantidadPendientes = useCantidadPendientes();
 
@@ -23,6 +24,11 @@ export function CabeceraPuntoVenta(): ReactElement {
         <IndicadorConexion />
         <TotalDelDia total={total} compacto sinConexion={!enLinea || cantidadPendientes > 0} />
       </div>
+      {cantidadACobrarHoy > 0 ? (
+        <Link className="recordatorio-fiados" href="/fiados">
+          Tenés {cantidadACobrarHoy} ventas por cobrar hoy
+        </Link>
+      ) : null}
     </header>
   );
 }

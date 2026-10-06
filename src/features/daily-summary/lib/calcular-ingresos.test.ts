@@ -1,15 +1,15 @@
-import { describe, expect, it } from "vitest";
+import assert from "node:assert/strict";
+import test from "node:test";
 
 import { calcularIngresosDelDia } from "@/features/daily-summary/lib/calcular-ingresos";
 
-describe("calcularIngresosDelDia", () => {
-  it("excluye los fiados del efectivo hasta que se registra un cobro", () => {
-    const ventas = [
-      { total: 100, tipoPago: "CONTADO" as const },
-      { total: 75.5, tipoPago: "FIADO" as const },
-    ];
+test("calcularIngresosDelDia excluye fiados hasta que se registra un pago", () => {
+  const ventas = [
+    { total: 100, estadoPago: "PAGADA" as const },
+    { total: 75.5, estadoPago: "FIADA" as const },
+    { total: 20, estadoPago: "A_COBRAR_HOY" as const },
+  ];
 
-    expect(calcularIngresosDelDia(ventas, [])).toBe(100);
-    expect(calcularIngresosDelDia(ventas, [25.25])).toBe(125.25);
-  });
+  assert.equal(calcularIngresosDelDia(ventas, []), 100);
+  assert.equal(calcularIngresosDelDia(ventas, [25.25]), 125.25);
 });

@@ -1,30 +1,48 @@
 "use client";
 
-import { useState, type FormEvent, type ReactElement } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { formatearPesos } from "@/shared/lib/moneda";
-import type { ItemNuevaVenta, TipoPago } from "@/shared/types/venta";
+import { normalizarNombreCliente } from "@/features/fiados/lib/normalizar-nombre-cliente";
+import type { Cliente, ItemNuevaVenta } from "@/shared/types/venta";
+
+type DatosFiado = {
+  estadoPago: "A_COBRAR_HOY" | "FIADA";
+  clienteFiadoId?: number;
+  clienteNuevoNombre?: string;
+  autorizadaPor?: string;
+  autorizacionConfirmada?: boolean;
+};
 
 export function CarritoVenta({
   items,
   total,
+  clientes,
   onCambiarCantidad,
   onQuitar,
   onAgregarConcepto,
   onCobrar,
+  onFiar,
   cobrando,
 }: {
   items: ItemNuevaVenta[];
   total: number;
+  clientes: Cliente[];
   onCambiarCantidad: (indice: number, cantidad: number) => void;
   onQuitar: (indice: number) => void;
   onAgregarConcepto: (descripcion: string, importe: number) => void;
-  onCobrar: (tipoPago: TipoPago, clienteNombre: string) => Promise<boolean>;
+  onCobrar: () => Promise<boolean>;
+  onFiar: (datos: DatosFiado) => Promise<boolean>;
   cobrando?: boolean;
 }): ReactElement {
   const [importeRapido, setImporteRapido] = useState("");
   const [descripcionRapida, setDescripcionRapida] = useState("");
-  const [tipoPago, setTipoPago] = useState<TipoPago>("CONTADO");
-  const [clienteNombre, setClienteNombre] = useState("");
+  const [dialogoAbierto, setDialogoAbierto] = useState(false);
+  const [estadoPago, setEstadoPago] = useState<"A_COBRAR_HOY" | "FIADA">("A_COBRAR_HOY");
+  const [clienteBusqueda, setClienteBusqueda] = useState("");
+  const [crearClienteNuevo, setCrearClienteNuevo] = useState(false);
+  const [autorizacionConfirmada, setAutorizacionConfirmada] = useState(false);
+  const [autorizadaPor, setAutorizadaPor] = useState("");
+  const dialogo = useRef<HTMLDialogElement>(null);
   const agregarConcepto = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const importe = Number(importeRapido);
@@ -32,6 +50,37 @@ export function CarritoVenta({
     onAgregarConcepto(descripcionRapida, importe);
     setImporteRapido("");
     setDescripcionRapida("");
+  };
+
+  useEffect(() => {
+    const elemento = dialogo.current;
+    if (!elemento) return;
+    if (dialogoAbierto && !elemento.open) elemento.showModal();
+    if (!dialogoAbierto && elemento.open) elemento.close();
+  }, [dialogoAbierto]);
+
+  const nombreNormalizado = normalizarNombreCliente(clienteBusqueda);
+  const clienteElegido = clientes.find(
+    (cliente) => normalizarNombreCliente(cliente.nombre) === nombreNormalizado,
+  );
+  const nombreNuevo = clienteElegido && !crearClienteNuevo ? "" : clienteBusqueda.trim();
+  const cobrarFiado = async () => {
+    if (!nombreNormalizado) return;
+    const guardada = await onFiar({
+      estadoPago,
+      ...(clienteElegido
+        ? { clienteFiadoId: clienteElegido.id }
+        : { clienteNuevoNombre: nombreNuevo }),
+      ...(estadoPago === "FIADA" ? { autorizadaPor, autorizacionConfirmada } : {}),
+    });
+    if (guardada) {
+      setClienteBusqueda("");
+      setCrearClienteNuevo(false);
+      setEstadoPago("A_COBRAR_HOY");
+      setAutorizacionConfirmada(false);
+      setAutorizadaPor("");
+      setDialogoAbierto(false);
+    }
   };
 
   return (
@@ -111,63 +160,149 @@ export function CarritoVenta({
         </button>
       </form>
       <div className="pie-carrito">
-        <div className="opciones-pago" role="group" aria-label="Método de pago">
-          <button
-            type="button"
-            className={tipoPago === "CONTADO" ? "opcion-pago activa" : "opcion-pago"}
-            aria-pressed={tipoPago === "CONTADO"}
-            onClick={() => setTipoPago("CONTADO")}
-          >
-            Contado
-          </button>
-          <button
-            type="button"
-            className={tipoPago === "FIADO" ? "opcion-pago activa" : "opcion-pago"}
-            aria-pressed={tipoPago === "FIADO"}
-            onClick={() => setTipoPago("FIADO")}
-          >
-            Fiado
-          </button>
-        </div>
-        {tipoPago === "FIADO" ? (
-          <label className="campo-formulario campo-cliente-fiado">
-            Nombre del cliente
-            <input
-              className="entrada-formulario"
-              type="text"
-              maxLength={120}
-              required
-              value={clienteNombre}
-              onChange={(event) => setClienteNombre(event.target.value)}
-              placeholder="Nombre y apellido"
-            />
-          </label>
-        ) : null}
         <div>
-          <span>Total a cobrar</span>
+          <span>Total</span>
           <strong>{formatearPesos(total)}</strong>
         </div>
         <button
           type="button"
           className="boton-cobrar"
-          disabled={
-            items.length === 0 || cobrando || (tipoPago === "FIADO" && !clienteNombre.trim())
-          }
-          onClick={async () => {
-            const guardada = await onCobrar(tipoPago, clienteNombre.trim());
-            if (guardada) {
-              setTipoPago("CONTADO");
-              setClienteNombre("");
-            }
-          }}
+          disabled={items.length === 0 || cobrando}
+          onClick={() => void onCobrar()}
         >
-          {cobrando
-            ? "Guardando…"
-            : tipoPago === "FIADO"
-              ? `Registrar fiado ${formatearPesos(total)}`
-              : `Cobrar ${formatearPesos(total)}`}
+          {cobrando ? "Guardando…" : `Cobrar ${formatearPesos(total)}`}
+        </button>
+        <button
+          type="button"
+          className="boton boton--secundario boton-fiar"
+          disabled={items.length === 0 || cobrando}
+          onClick={() => setDialogoAbierto(true)}
+        >
+          Fiar / Cobra después
         </button>
       </div>
+      <dialog
+        ref={dialogo}
+        className="dialogo-confirmacion dialogo-fiado"
+        aria-labelledby="dialogo-fiado-titulo"
+        onCancel={(event) => {
+          event.preventDefault();
+          setDialogoAbierto(false);
+        }}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) setDialogoAbierto(false);
+        }}
+      >
+        <h2 id="dialogo-fiado-titulo">Registrar fiado</h2>
+        <p>Elegí al cliente y cómo querés registrar esta deuda.</p>
+        <label className="campo-formulario">
+          Cliente
+          <input
+            className="entrada-formulario"
+            type="search"
+            list="clientes-fiado"
+            maxLength={120}
+            value={clienteBusqueda}
+            onChange={(event) => {
+              setClienteBusqueda(event.target.value);
+              if (
+                clientes.some(
+                  (cliente) =>
+                    normalizarNombreCliente(cliente.nombre) ===
+                    normalizarNombreCliente(event.target.value),
+                )
+              ) {
+                setCrearClienteNuevo(false);
+              }
+            }}
+            placeholder="Buscá o escribí un nombre"
+            autoComplete="off"
+          />
+          <datalist id="clientes-fiado">
+            {clientes.map((cliente) => (
+              <option key={cliente.id} value={cliente.nombre} />
+            ))}
+          </datalist>
+          <small>
+            {clienteElegido && !crearClienteNuevo
+              ? "Cliente existente"
+              : "Se guardará como cliente nuevo"}
+          </small>
+        </label>
+        <button
+          className="boton boton--secundario boton-nuevo-cliente"
+          type="button"
+          aria-pressed={crearClienteNuevo}
+          onClick={() => {
+            setCrearClienteNuevo(true);
+            setClienteBusqueda("");
+          }}
+        >
+          Nuevo cliente
+        </button>
+        <fieldset className="opciones-fiado">
+          <legend>¿Cuándo paga?</legend>
+          <label>
+            <input
+              type="radio"
+              name="estado-fiado"
+              checked={estadoPago === "A_COBRAR_HOY"}
+              onChange={() => setEstadoPago("A_COBRAR_HOY")}
+            />
+            Transfiere hoy
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="estado-fiado"
+              checked={estadoPago === "FIADA"}
+              onChange={() => setEstadoPago("FIADA")}
+            />
+            Cuenta mensual
+          </label>
+        </fieldset>
+        {estadoPago === "FIADA" ? (
+          <>
+            <label className="confirmacion-autorizacion">
+              <input
+                type="checkbox"
+                checked={autorizacionConfirmada}
+                onChange={(event) => setAutorizacionConfirmada(event.target.checked)}
+              />
+              El dueño autorizó anotar esta compra
+            </label>
+            <label className="campo-formulario">
+              Quién autorizó (opcional)
+              <input
+                className="entrada-formulario"
+                type="text"
+                maxLength={120}
+                value={autorizadaPor}
+                onChange={(event) => setAutorizadaPor(event.target.value)}
+              />
+            </label>
+          </>
+        ) : null}
+        <div className="dialogo-confirmacion__acciones">
+          <button
+            className="boton boton--secundario"
+            type="button"
+            onClick={() => setDialogoAbierto(false)}
+          >
+            Cancelar
+          </button>
+          <button
+            className="boton boton--primario"
+            type="button"
+            disabled={
+              !nombreNormalizado || cobrando || (estadoPago === "FIADA" && !autorizacionConfirmada)
+            }
+            onClick={() => void cobrarFiado()}
+          >
+            {cobrando ? "Guardando…" : `Registrar ${formatearPesos(total)}`}
+          </button>
+        </div>
+      </dialog>
     </aside>
   );
 }

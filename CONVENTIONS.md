@@ -45,6 +45,16 @@ El acceso a IndexedDB pasa por `src/shared/lib/storage.ts`.
 - Cada función de `storage.ts` debe manejar el caso de fallo (ej: storage
   lleno o corrupto) devolviendo un resultado explícito, no lanzando una
   excepción sin capturar.
+- Las ventas usan `EstadoPago` (`PAGADA`, `A_COBRAR_HOY` o `FIADA`). Las ventas
+  no pagadas siempre pertenecen a un cliente. El saldo se deriva de ventas no
+  anuladas menos pagos no anulados; nunca se persiste como columna.
+- Los nombres de clientes se identifican por su forma recortada, en minúsculas,
+  sin tildes.
+- Los pagos usan claves de operación idempotentes. Importes y subtotales se
+  manejan en centavos o con `Prisma.Decimal`; no se acumulan importes con floats
+  sin redondear.
+- La cola offline puede guardar ventas pagadas o fiadas y conserva el precio
+  acordado. Registrar pagos y cobrar ventas fiadas requieren conexión.
 
 ## UI / Componentes
 
@@ -73,4 +83,6 @@ El acceso a IndexedDB pasa por `src/shared/lib/storage.ts`.
 - Las rutas privadas y Server Actions deben validar la sesión del PIN en el
   servidor.
 - Las pruebas unitarias de lógica de negocio se ejecutan con `npm test`.
+- El runner de pruebas es `node:test` con `tsx`; no sumar dependencias para las
+  pruebas unitarias.
 - No registrar PINs, hashes ni secretos de sesión en logs.

@@ -3,43 +3,10 @@ import type { Producto } from "@/shared/types/producto";
 import type { VentaPendiente } from "@/shared/types/venta";
 
 import { fallo, ok } from "@/shared/lib/resultado";
-
-const DB_NAME = "mi-kiosco";
-const DB_VERSION = 1;
+import { abrirBaseDeDatos } from "@/shared/lib/indexeddb";
 
 const STORE_VENTAS_PENDIENTES = "ventas-pendientes";
 const STORE_PRODUCTOS_CACHE = "productos-cache";
-
-function abrirBaseDeDatos(): Promise<IDBDatabase | null> {
-  if (typeof indexedDB === "undefined") {
-    return Promise.resolve(null);
-  }
-
-  return new Promise((resolve) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-    request.onupgradeneeded = () => {
-      const db = request.result;
-
-      if (!db.objectStoreNames.contains(STORE_VENTAS_PENDIENTES)) {
-        db.createObjectStore(STORE_VENTAS_PENDIENTES, { keyPath: "localId" });
-      }
-
-      if (!db.objectStoreNames.contains(STORE_PRODUCTOS_CACHE)) {
-        db.createObjectStore(STORE_PRODUCTOS_CACHE, { keyPath: "id" });
-      }
-    };
-
-    request.onsuccess = () => {
-      resolve(request.result);
-    };
-
-    request.onerror = () => {
-      console.error("storage.abrirBaseDeDatos", request.error);
-      resolve(null);
-    };
-  });
-}
 
 type RequestLike = {
   result: unknown;

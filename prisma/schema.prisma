@@ -6,31 +6,44 @@ datasource db {
   provider = "postgresql"
 }
 
-enum TipoPago {
-  CONTADO
-  FIADO
+enum EstadoPago {
+  PAGADA
+  A_COBRAR_HOY
+  FIADA
+}
+
+enum MedioPago {
+  EFECTIVO
+  TRANSFERENCIA
+  DESCONOCIDO
 }
 
 model Producto {
   id         Int         @id @default(autoincrement())
   nombre     String
-  precio     Decimal
+  precio     Decimal     @db.Decimal(12, 2)
   activo     Boolean     @default(true)
   createdAt  DateTime    @default(now())
   ventaItems VentaItem[]
 }
 
 model Venta {
-  id            Int          @id @default(autoincrement())
-  clienteId     String?      @unique
-  fecha         DateTime     @default(now())
-  total         Decimal
-  tipoPago      TipoPago     @default(CONTADO)
-  clienteNombre String?
-  sincronizada  Boolean      @default(true)
-  anulada       Boolean      @default(false)
-  items         VentaItem[]
-  cobros        CobroFiado[]
+  id              Int         @id @default(autoincrement())
+  claveOperacion  String?     @unique
+  fecha           DateTime    @default(now())
+  total           Decimal     @db.Decimal(12, 2)
+  estadoPago      EstadoPago  @default(PAGADA)
+  clienteFiadoId  Int?
+  clienteNombre   String?
+  autorizadaPor   String?     @db.VarChar(120)
+  sincronizada    Boolean     @default(true)
+  anulada         Boolean     @default(false)
+  items           VentaItem[]
+  clienteFiado    Cliente?    @relation(fields: [clienteFiadoId], references: [id], onDelete: Restrict)
+  pagos           Pago[]
+
+  @@index([fecha])
+  @@index([clienteFiadoId, estadoPago])
 }
 
 model VentaItem {
@@ -39,18 +52,35 @@ model VentaItem {
   productoId     Int?
   productoNombre String
   cantidad       Int
-  precioUnitario Decimal
+  precioUnitario Decimal   @db.Decimal(12, 2)
   venta          Venta     @relation(fields: [ventaId], references: [id], onDelete: Cascade)
   producto       Producto? @relation(fields: [productoId], references: [id], onDelete: Restrict)
 }
 
-model CobroFiado {
-  id      Int      @id @default(autoincrement())
-  ventaId Int
-  monto   Decimal
-  fecha   DateTime @default(now())
-  venta   Venta    @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+model Cliente {
+  id               Int      @id @default(autoincrement())
+  nombre           String
+  nombreNormalizado String  @unique
+  telefono         String?
+  activo           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  ventas           Venta[]
+  pagos            Pago[]
+}
+
+model Pago {
+  id             Int        @id @default(autoincrement())
+  clienteFiadoId Int
+  ventaId        Int?
+  monto          Decimal    @db.Decimal(12, 2)
+  medio          MedioPago
+  fecha          DateTime   @default(now())
+  claveOperacion String     @unique
+  anulado        Boolean    @default(false)
+  clienteFiado   Cliente    @relation(fields: [clienteFiadoId], references: [id], onDelete: Restrict)
+  venta          Venta?     @relation(fields: [ventaId], references: [id], onDelete: SetNull)
 
   @@index([fecha])
+  @@index([clienteFiadoId, anulado])
   @@index([ventaId])
 }

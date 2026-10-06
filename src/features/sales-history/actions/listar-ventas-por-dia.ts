@@ -28,7 +28,8 @@ export async function listarVentasPorDia(fecha: string): Promise<Resultado<Venta
             producto: true,
           },
         },
-        cobros: { select: { monto: true } },
+        clienteFiado: { select: { nombre: true } },
+        pagos: { where: { anulado: false }, select: { monto: true } },
       },
       orderBy: { fecha: "desc" },
     });
