@@ -25,10 +25,11 @@ export async function POST(request: Request): Promise<Response> {
 
   if (
     !esRegistro(cuerpo) ||
-    typeof cuerpo.clienteId !== "string" ||
+    typeof cuerpo.claveOperacion !== "string" ||
     !esRegistro(cuerpo.venta) ||
     typeof cuerpo.venta.fecha !== "string" ||
-    !Array.isArray(cuerpo.venta.items)
+    !Array.isArray(cuerpo.venta.items) ||
+    (cuerpo.esReintentoOffline !== undefined && typeof cuerpo.esReintentoOffline !== "boolean")
   ) {
     return Response.json(
       { ok: false, code: "validation", error: "El pedido de venta no es válido." },
@@ -36,7 +37,11 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  const resultado = await guardarVenta(cuerpo.venta, cuerpo.clienteId);
+  const resultado = await guardarVenta(
+    cuerpo.venta,
+    cuerpo.claveOperacion,
+    cuerpo.esReintentoOffline === true,
+  );
   return Response.json(resultado, {
     status: resultado.ok ? 200 : resultado.code === "validation" ? 400 : 500,
   });

@@ -1,14 +1,16 @@
 import type { Resultado } from "@/shared/types/resultado";
 import type { Producto } from "@/shared/types/producto";
 import type { VentaPendiente } from "@/shared/types/venta";
+import type { Cliente } from "@/shared/types/venta";
 
 import { fallo, ok } from "@/shared/lib/resultado";
 
 const DB_NAME = "mi-kiosco";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 const STORE_VENTAS_PENDIENTES = "ventas-pendientes";
 const STORE_PRODUCTOS_CACHE = "productos-cache";
+const STORE_CLIENTES_CACHE = "clientes-cache";
 
 function abrirBaseDeDatos(): Promise<IDBDatabase | null> {
   if (typeof indexedDB === "undefined") {
@@ -27,6 +29,10 @@ function abrirBaseDeDatos(): Promise<IDBDatabase | null> {
 
       if (!db.objectStoreNames.contains(STORE_PRODUCTOS_CACHE)) {
         db.createObjectStore(STORE_PRODUCTOS_CACHE, { keyPath: "id" });
+      }
+
+      if (!db.objectStoreNames.contains(STORE_CLIENTES_CACHE)) {
+        db.createObjectStore(STORE_CLIENTES_CACHE, { keyPath: "id" });
       }
     };
 
@@ -197,4 +203,24 @@ export async function leerProductosCache(): Promise<Resultado<Producto[]>> {
   }
 
   return ok((resultado.data ?? []) as Producto[]);
+}
+
+export async function guardarClientesCache(clientes: Cliente[]): Promise<Resultado<Cliente[]>> {
+  const resultado = await ejecutarEnStore<Cliente[]>(STORE_CLIENTES_CACHE, "readwrite", (store) => {
+    store.clear();
+    for (const cliente of clientes) store.put(cliente);
+    return store.getAll();
+  });
+
+  if (!resultado.ok) return resultado;
+  return ok((resultado.data ?? []) as Cliente[]);
+}
+
+export async function leerClientesCache(): Promise<Resultado<Cliente[]>> {
+  const resultado = await ejecutarEnStore<Cliente>(STORE_CLIENTES_CACHE, "readonly", (store) =>
+    store.getAll(),
+  );
+
+  if (!resultado.ok) return resultado;
+  return ok((resultado.data ?? []) as Cliente[]);
 }

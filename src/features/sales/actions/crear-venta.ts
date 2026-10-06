@@ -7,8 +7,8 @@ import { fallo } from "@/shared/lib/resultado";
 
 export async function crearVenta(
   venta: unknown,
-  clienteId: unknown,
+  claveOperacion: unknown,
 ): Promise<Resultado<{ id: number }>> {
   if (!(await tieneSesionValida())) return fallo("Ingresá el PIN para continuar.", "unauthorized");
-  return guardarVenta(venta, clienteId);
+  return guardarVenta(venta, claveOperacion);
 }

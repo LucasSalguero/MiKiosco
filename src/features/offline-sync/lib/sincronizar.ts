@@ -10,7 +10,8 @@ import {
 
 export type EnviarVenta = (
   venta: NuevaVenta,
-  clienteId: string,
+  claveOperacion: string,
+  esReintentoOffline: boolean,
 ) => Promise<Resultado<{ id: number }>>;
 
 let sincronizacionEnCurso = false;
@@ -59,7 +60,7 @@ export async function sincronizarPendientes(
         }
       }
 
-      const respuesta = await enviar(pendiente.venta, pendiente.localId);
+      const respuesta = await enviar(pendiente.venta, pendiente.localId, true);
 
       if (respuesta.ok) {
         const eliminado = await eliminarVentaPendiente(pendiente.localId);
