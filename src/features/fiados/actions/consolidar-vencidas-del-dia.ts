@@ -1,7 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
 import prisma from "@/shared/db/client";
 import { fallo, ok } from "@/shared/lib/resultado";
 import { tieneSesionValida } from "@/shared/lib/autenticacion";
@@ -22,9 +20,6 @@ export async function consolidarVencidasDelDia(): Promise<Resultado<number>> {
       },
       data: { estadoPago: "FIADA" },
     });
-    revalidatePath("/");
-    revalidatePath("/fiados");
-    revalidatePath("/historial");
     return ok(resultado.count);
   } catch (error) {
     console.error("fiados.consolidarVencidasDelDia", error);
