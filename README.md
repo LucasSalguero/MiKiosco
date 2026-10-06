@@ -16,6 +16,10 @@ La aplicación incluye:
 - Persistencia de ventas en PostgreSQL mediante Prisma
 - Cola local IndexedDB, envío idempotente y sincronización automática al recuperar conexión
 - Catálogo cacheado para consulta sin conexión y shell PWA con service worker
+- Fiados por cliente: ventas a cobrar hoy, cuentas mensuales y pagos parciales
+- Resumen diario separado entre vendido, cobrado y deuda pendiente
+- Cierre perezoso de ventas vencidas al cargar Vender, Fiados o Historial, más
+  cierre manual confirmado desde Fiados
 
 ## Requisitos
 
@@ -72,10 +76,10 @@ proveedor o del proxy.
 
 ## Base de datos
 
-Ejecutar la migración inicial:
+Aplicar las migraciones pendientes en desarrollo:
 
 ```bash
-npx prisma migrate dev --name init
+npx prisma migrate dev
 ```
 
 Validar el estado de las migraciones:
@@ -164,8 +168,18 @@ recursos e iconos; no guarda páginas autenticadas ni respuestas de Server
 Components. Una página que ya estaba abierta puede conservar el flujo de venta
 local, pero al recargar sin conexión se muestra la shell de desconexión.
 
+Las ventas fiadas también se pueden registrar sin conexión: se guardan con la
+clave de operación local y se sincronizan junto con el cliente, que se busca o
+crea por nombre normalizado para evitar duplicados. Registrar pagos, cobrar una
+venta fiada y cerrar manualmente el día requieren conexión. El saldo de cada
+cliente se deriva de ventas fiadas no anuladas menos pagos no anulados; no se
+guarda como un valor independiente. Los pagos anteriores a la incorporación del
+medio de pago se conservan con medio `DESCONOCIDO`, porque ese dato no existía
+en el sistema anterior.
+
 ## Comandos
 
-`npm run dev` inicia el entorno de desarrollo. `npm test`,
+`npm run dev` inicia el entorno de desarrollo. `npm test` ejecuta las pruebas
+con `node:test` y `tsx`,
 `npm run typecheck`, `npm run lint`, `npm run format:check` y `npm run build`
 verifican el proyecto.

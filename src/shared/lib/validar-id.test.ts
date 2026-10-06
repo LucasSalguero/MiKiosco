@@ -1,17 +1,24 @@
-import { describe, expect, it } from "vitest";
+import assert from "node:assert/strict";
+import test from "node:test";
 
 import { esIdEnteroValido } from "@/shared/lib/validar-id";
 
-describe("esIdEnteroValido", () => {
-  it.each([null, undefined, 0, -1, 1.2, Number.MAX_SAFE_INTEGER + 1, 2_147_483_648, "12"])(
-    "rechaza identificadores inválidos: %s",
-    (id) => {
-      expect(esIdEnteroValido(id)).toBe(false);
-    },
-  );
+test("esIdEnteroValido rechaza identificadores inválidos", () => {
+  for (const id of [
+    null,
+    undefined,
+    0,
+    -1,
+    1.2,
+    Number.MAX_SAFE_INTEGER + 1,
+    2_147_483_648,
+    "12",
+  ]) {
+    assert.equal(esIdEnteroValido(id), false);
+  }
+});
 
-  it("acepta enteros positivos dentro del rango Int de PostgreSQL", () => {
-    expect(esIdEnteroValido(1)).toBe(true);
-    expect(esIdEnteroValido(2_147_483_647)).toBe(true);
-  });
+test("esIdEnteroValido acepta enteros positivos dentro del rango Int", () => {
+  assert.equal(esIdEnteroValido(1), true);
+  assert.equal(esIdEnteroValido(2_147_483_647), true);
 });

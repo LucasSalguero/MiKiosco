@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
+    "test": "node --import tsx --test \"src/**/*.test.ts\"",
     "auth:hash-pin": "tsx scripts/generar-hash-pin.ts"
   },
   "repository": {
