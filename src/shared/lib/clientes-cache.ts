@@ -1,35 +1,9 @@
 import type { Cliente } from "@/shared/types/venta";
 import { fallo, ok } from "@/shared/lib/resultado";
 import type { Resultado } from "@/shared/types/resultado";
+import { abrirBaseDeDatos } from "@/shared/lib/indexeddb";
 
-const DB_NAME = "mi-kiosco";
-const DB_VERSION = 2;
 const STORE_CLIENTES = "clientes-cache";
-
-function abrirBaseDeDatos(): Promise<IDBDatabase | null> {
-  if (typeof indexedDB === "undefined") return Promise.resolve(null);
-
-  return new Promise((resolve) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains("ventas-pendientes")) {
-        db.createObjectStore("ventas-pendientes", { keyPath: "localId" });
-      }
-      if (!db.objectStoreNames.contains("productos-cache")) {
-        db.createObjectStore("productos-cache", { keyPath: "id" });
-      }
-      if (!db.objectStoreNames.contains(STORE_CLIENTES)) {
-        db.createObjectStore(STORE_CLIENTES, { keyPath: "id" });
-      }
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => {
-      console.error("clientes-cache.abrirBaseDeDatos", request.error);
-      resolve(null);
-    };
-  });
-}
 
 function ejecutar<T>(
   modo: IDBTransactionMode,
