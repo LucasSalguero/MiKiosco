@@ -15,16 +15,16 @@ const destinos = [
 ];
 
 const suscribirse = () => () => {};
+const snapshotHidratado = () => true;
+const snapshotServidor = () => false;
 
 export function NavegacionPrincipal(): ReactElement {
   const pathname = usePathname();
-  const pathnameActivo = useSyncExternalStore(
-    suscribirse,
-    () => pathname ?? "",
-    () => "",
-  );
+  const hidratado = useSyncExternalStore(suscribirse, snapshotHidratado, snapshotServidor);
   const router = useRouter();
   const { mostrar } = useToast();
+
+  const pathnameActivo = hidratado ? (pathname ?? "") : "";
 
   const bloquear = async () => {
     try {

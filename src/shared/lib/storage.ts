@@ -1,7 +1,6 @@
 import type { Resultado } from "@/shared/types/resultado";
 import type { Producto } from "@/shared/types/producto";
 import type { VentaPendiente } from "@/shared/types/venta";
-import type { Cliente } from "@/shared/types/venta";
 
 import { fallo, ok } from "@/shared/lib/resultado";
 
@@ -203,24 +202,4 @@ export async function leerProductosCache(): Promise<Resultado<Producto[]>> {
   }
 
   return ok((resultado.data ?? []) as Producto[]);
-}
-
-export async function guardarClientesCache(clientes: Cliente[]): Promise<Resultado<Cliente[]>> {
-  const resultado = await ejecutarEnStore<Cliente[]>(STORE_CLIENTES_CACHE, "readwrite", (store) => {
-    store.clear();
-    for (const cliente of clientes) store.put(cliente);
-    return store.getAll();
-  });
-
-  if (!resultado.ok) return resultado;
-  return ok((resultado.data ?? []) as Cliente[]);
-}
-
-export async function leerClientesCache(): Promise<Resultado<Cliente[]>> {
-  const resultado = await ejecutarEnStore<Cliente>(STORE_CLIENTES_CACHE, "readonly", (store) =>
-    store.getAll(),
-  );
-
-  if (!resultado.ok) return resultado;
-  return ok((resultado.data ?? []) as Cliente[]);
 }
