@@ -1,7 +1,11 @@
 export type ResumenDiario = {
   fecha: string;
-  total: number;
+  vendido: number;
+  cobrado: number;
+  fiadoNuevo: number;
+  deudaTotal: number;
   cantidadVentas: number;
-  clienteIds?: string[];
+  cantidadACobrarHoy: number;
+  clavesOperacion?: string[];
   cantidadCobros?: number;
 };

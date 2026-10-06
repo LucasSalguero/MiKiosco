@@ -15,10 +15,10 @@ export function TotalDelDia({
 }): ReactElement {
   return (
     <div className={compacto ? "total-del-dia--compacto" : "total-del-dia"} aria-live="polite">
-      <p>{compacto ? "Hoy" : "Total del día"}</p>
+      <p>{compacto ? "Cobrado hoy" : "Cobrado del día"}</p>
       <strong>{formatearPesos(total)}</strong>
       {sinConexion ? (
-        <small>Sin conexión: incluye ventas guardadas en este dispositivo</small>
+        <small>Sin conexión: incluye ventas de contado guardadas en este dispositivo</small>
       ) : null}
     </div>
   );

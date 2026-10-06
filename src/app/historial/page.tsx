@@ -4,6 +4,7 @@ import { ListaVentas } from "@/features/sales-history/ui/ListaVentas";
 import { SelectorDia } from "@/features/sales-history/ui/SelectorDia";
 import { PendientesDelDia } from "@/features/sales-history/ui/PendientesDelDia";
 import { esFechaISOValida, hoyISO } from "@/shared/lib/fechas";
+import { consolidarVencidasDelDia } from "@/features/fiados/actions/consolidar-vencidas-del-dia";
 
 export default async function HistorialPage({
   searchParams,
@@ -17,6 +18,8 @@ export default async function HistorialPage({
     fechaParametro && esFechaISOValida(fechaParametro) && fechaParametro <= hoy
       ? fechaParametro
       : hoy;
+  const consolidacion = await consolidarVencidasDelDia();
+  if (!consolidacion.ok) throw new Error(consolidacion.error);
   const [resultadoResumen, resultadoVentas] = await Promise.all([
     obtenerResumenDiario(fecha),
     listarVentasPorDia(fecha),
@@ -39,11 +42,26 @@ export default async function HistorialPage({
       </header>
       <section className="historial__contenido" aria-label="Ventas del día">
         <SelectorDia fecha={fecha} />
-        <PendientesDelDia
-          fecha={fecha}
-          totalServidor={resultadoResumen.data.total}
-          clienteIds={resultadoResumen.data.clienteIds ?? []}
-        />
+        <PendientesDelDia fecha={fecha} resumen={resultadoResumen.data} />
+        <section className="resumen-historial" aria-label="Resumen del día">
+          {[
+            ["Vendido", resultadoResumen.data.vendido],
+            ["Cobrado", resultadoResumen.data.cobrado],
+            ["Fiado nuevo", resultadoResumen.data.fiadoNuevo],
+            ["Ventas", resultadoResumen.data.cantidadVentas],
+            ["Deuda total", resultadoResumen.data.deudaTotal],
+          ].map(([etiqueta, importe]) => (
+            <article key={etiqueta}>
+              <span>{etiqueta}</span>
+              <strong>
+                {new Intl.NumberFormat("es-AR", {
+                  style: "currency",
+                  currency: "ARS",
+                }).format(Number(importe))}
+              </strong>
+            </article>
+          ))}
+        </section>
         <ListaVentas ventas={resultadoVentas.data} />
       </section>
     </main>

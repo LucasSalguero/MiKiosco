@@ -15,15 +15,16 @@ import { TotalDelDia } from "@/features/daily-summary/ui/TotalDelDia";
 import { useEstadoConexion } from "@/features/offline-sync/lib/use-estado-conexion";
 import { useToast } from "@/shared/ui/use-toast";
 import type { VentaPendiente } from "@/shared/types/venta";
+import type { ResumenDiario } from "@/shared/types/resumen-diario";
+import { combinarConPendientes } from "@/features/daily-summary/lib/combinar-resumen";
+import { obtenerEstadoPago } from "@/features/sales/lib/obtener-estado-pago";
 
 export function PendientesDelDia({
   fecha,
-  totalServidor,
-  clienteIds,
+  resumen,
 }: {
   fecha: string;
-  totalServidor: number;
-  clienteIds: string[];
+  resumen: ResumenDiario;
 }): ReactElement {
   const [pendientes, setPendientes] = useState<VentaPendiente[]>([]);
   const [pendientePorDescartar, setPendientePorDescartar] = useState<VentaPendiente | null>(null);
@@ -32,24 +33,14 @@ export function PendientesDelDia({
   const { enLinea } = useEstadoConexion();
   const { mostrar } = useToast();
   const router = useRouter();
-  const idsServidor = new Set(clienteIds);
+  const clavesServidor = new Set(resumen.clavesOperacion ?? []);
   const delDia = pendientes.filter(
     (pendiente) =>
       fechaLocalISO(new Date(pendiente.venta.fecha)) === fecha &&
-      !idsServidor.has(pendiente.localId),
+      !clavesServidor.has(pendiente.localId),
   );
   const sumables = delDia.filter((pendiente) => pendiente.estado !== "requiere-revision");
-  const totalPendiente = sumables.reduce(
-    (total, pendiente) =>
-      pendiente.venta.tipoPago === "FIADO"
-        ? total
-        : total +
-          pendiente.venta.items.reduce(
-            (subtotal, item) => subtotal + item.cantidad * item.precioUnitario,
-            0,
-          ),
-    0,
-  );
+  const resumenCombinado = combinarConPendientes(resumen, pendientes, fecha);
 
   useEffect(() => {
     let activo = true;
@@ -103,16 +94,14 @@ export function PendientesDelDia({
 
   return (
     <>
-      <TotalDelDia
-        total={totalServidor + totalPendiente}
-        sinConexion={!enLinea || sumables.length > 0}
-      />
+      <TotalDelDia total={resumenCombinado.cobrado} sinConexion={!enLinea || sumables.length > 0} />
       {delDia.length > 0 ? (
         <section className="pendientes-historial" aria-labelledby="pendientes-titulo">
           <h2 id="pendientes-titulo">Pendientes de sincronizar</h2>
           <div className="lista-ventas">
             {delDia.map((pendiente) => {
               const requiereRevision = pendiente.estado === "requiere-revision";
+              const estadoPago = obtenerEstadoPago(pendiente.venta);
               const total = pendiente.venta.items.reduce(
                 (subtotal, item) => subtotal + item.cantidad * item.precioUnitario,
                 0,
@@ -133,9 +122,11 @@ export function PendientesDelDia({
                     >
                       {requiereRevision
                         ? "Requiere revisión"
-                        : pendiente.venta.tipoPago === "FIADO"
-                          ? `Fiado de ${pendiente.venta.clienteNombre}`
-                          : "Pendiente"}
+                        : estadoPago === "PAGADA"
+                          ? "Pendiente de sincronizar"
+                          : estadoPago === "A_COBRAR_HOY"
+                            ? "A cobrar hoy"
+                            : "Cuenta mensual"}
                     </strong>
                   </div>
                   <ul className="pendiente-venta__items">

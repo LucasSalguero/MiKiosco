@@ -7,8 +7,11 @@ type VentaPersistida = {
   total: { toString: () => string };
   sincronizada: boolean;
   anulada: boolean;
-  tipoPago: "CONTADO" | "FIADO";
+  estadoPago: "PAGADA" | "A_COBRAR_HOY" | "FIADA";
+  clienteFiadoId: number | null;
+  clienteFiado: { nombre: string } | null;
   clienteNombre: string | null;
+  autorizadaPor: string | null;
   items: Array<{
     id: number;
     productoId: number | null;
@@ -17,7 +20,7 @@ type VentaPersistida = {
     precioUnitario: { toString: () => string };
     producto: { nombre: string } | null;
   }>;
-  cobros: Array<{ monto: { toString: () => string } }>;
+  pagos: Array<{ monto: { toString: () => string } }>;
 };
 
 export function mapearVenta(venta: VentaPersistida): Venta {
@@ -27,19 +30,20 @@ export function mapearVenta(venta: VentaPersistida): Venta {
     total: decimalANumero(venta.total),
     sincronizada: venta.sincronizada,
     anulada: venta.anulada,
-    tipoPago: venta.tipoPago,
-    clienteNombre: venta.clienteNombre,
+    estadoPago: venta.estadoPago,
+    clienteFiadoId: venta.clienteFiadoId,
+    clienteNombre: venta.clienteFiado?.nombre ?? venta.clienteNombre,
+    autorizadaPor: venta.autorizadaPor,
     saldoPendiente:
-      venta.tipoPago === "FIADO"
+      venta.estadoPago !== "PAGADA"
         ? Math.max(
             0,
-            Number(
-              (
-                decimalANumero(venta.total) -
-                venta.cobros.reduce((suma, cobro) => suma + decimalANumero(cobro.monto), 0)
-              ).toFixed(2),
-            ),
-          )
+            Math.round(decimalANumero(venta.total) * 100) -
+              venta.pagos.reduce(
+                (suma, pago) => suma + Math.round(decimalANumero(pago.monto) * 100),
+                0,
+              ),
+          ) / 100
         : 0,
     items: venta.items.map((item) => {
       const precioUnitario = decimalANumero(item.precioUnitario);
@@ -49,7 +53,7 @@ export function mapearVenta(venta: VentaPersistida): Venta {
         productoNombre: item.productoNombre || item.producto?.nombre || "Producto",
         cantidad: item.cantidad,
         precioUnitario,
-        subtotal: Number((item.cantidad * precioUnitario).toFixed(2)),
+        subtotal: (Math.round(precioUnitario * 100) * item.cantidad) / 100,
       };
     }),
   };
