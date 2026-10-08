@@ -163,10 +163,13 @@ Para validar una venta antigua, guardá una venta con fecha de más de 30 días 
 la cola local: al sincronizar debe quedar marcada para revisión y no impedir
 que se envíen las demás.
 
-Por seguridad, el service worker solo cachea la shell estática de desconexión,
+Por seguridad, el service worker cachea la shell estática de desconexión,
 recursos e iconos; no guarda páginas autenticadas ni respuestas de Server
-Components. Una página que ya estaba abierta puede conservar el flujo de venta
-local, pero al recargar sin conexión se muestra la shell de desconexión.
+Components. Los recursos compilados de Next.js se buscan primero en la red y
+se usan desde caché solo como respaldo offline, para evitar mezclar scripts
+viejos con páginas actualizadas. Una página que ya estaba abierta puede
+conservar el flujo de venta local, pero al recargar sin conexión se muestra la
+shell de desconexión.
 
 Las ventas fiadas también se pueden registrar sin conexión: se guardan con la
 clave de operación local y se sincronizan junto con el cliente, que se busca o
