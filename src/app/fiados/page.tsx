@@ -19,6 +19,9 @@ export default async function FiadosPage() {
         <div>
           <p className="marca">Mi Kiosco</p>
           <h1>Fiados</h1>
+          <p className="historial__descripcion">
+            Seguí los cobros de hoy y las cuentas pendientes de cada cliente.
+          </p>
         </div>
       </header>
       <FiadosInicio clientes={clientes.data} ventasACobrarHoy={porCobrar.data} />

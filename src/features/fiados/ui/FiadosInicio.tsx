@@ -40,6 +40,8 @@ export function FiadosInicio({
   const dialogo = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const { mostrar } = useToast();
+  const totalDeuda = clientes.reduce((total, cliente) => total + cliente.saldo, 0);
+  const totalACobrarHoy = ventasACobrarHoy.reduce((total, venta) => total + venta.saldo, 0);
 
   useEffect(() => {
     const elemento = dialogo.current;
@@ -47,6 +49,11 @@ export function FiadosInicio({
     if (dialogoAbierto && !elemento.open) elemento.showModal();
     if (!dialogoAbierto && elemento.open) elemento.close();
   }, [dialogoAbierto]);
+
+  const cerrarDialogo = () => {
+    if (dialogo.current?.open) dialogo.current.close();
+    setDialogoAbierto(false);
+  };
 
   const cobrar = async (venta: VentaACobrarHoy) => {
     if (!navigator.onLine) {
@@ -125,10 +132,33 @@ export function FiadosInicio({
 
   return (
     <div className="fiados-inicio">
+      <section className="fiados-resumen" aria-label="Resumen de fiados">
+        <article className="fiados-resumen__hoy">
+          <span>Por cobrar hoy</span>
+          <strong>{formatearPesos(totalACobrarHoy)}</strong>
+          <small>
+            {ventasACobrarHoy.length === 1
+              ? "1 venta pendiente"
+              : `${ventasACobrarHoy.length} ventas pendientes`}
+          </small>
+        </article>
+        <article>
+          <span>Deuda total</span>
+          <strong>{formatearPesos(totalDeuda)}</strong>
+          <small>
+            {clientes.length === 1
+              ? "1 cliente con saldo"
+              : `${clientes.length} clientes con saldo`}
+          </small>
+        </article>
+      </section>
+
       <section className="fiados-por-cobrar" aria-labelledby="a-cobrar-hoy-titulo">
         <div className="fiados-seccion__encabezado">
           <div>
-            <h2 id="a-cobrar-hoy-titulo">A cobrar hoy</h2>
+            <h2 id="a-cobrar-hoy-titulo">
+              A cobrar hoy <span className="fiados-contador">{ventasACobrarHoy.length}</span>
+            </h2>
             <p>Ventas que todavía esperan transferencia o pago.</p>
           </div>
           <label className="campo-formulario fiados-medio">
@@ -153,13 +183,16 @@ export function FiadosInicio({
               <article className="venta-por-cobrar" key={venta.id}>
                 <div>
                   <Link href={`/fiados/${venta.clienteFiadoId}`}>{venta.cliente}</Link>
-                  <small>{fechaHora(venta.fecha)}</small>
+                  <small>Venta de hoy · {fechaHora(venta.fecha)}</small>
                 </div>
-                <strong>{formatearPesos(venta.saldo)}</strong>
+                <strong className="venta-por-cobrar__saldo">
+                  {formatearPesos(venta.saldo)}
+                  <small>pendiente</small>
+                </strong>
                 <button
                   type="button"
                   className="boton boton--primario"
-                  disabled={ventaCobrando !== null}
+                  disabled={ventaCobrando !== null || cerrando}
                   onClick={() => void cobrar(venta)}
                 >
                   {ventaCobrando === venta.id ? "Guardando…" : "Marcar como cobrada"}
@@ -173,26 +206,39 @@ export function FiadosInicio({
       <section className="fiados-cuentas" aria-labelledby="cuentas-clientes-titulo">
         <div className="fiados-seccion__encabezado">
           <div>
-            <h2 id="cuentas-clientes-titulo">Cuentas corrientes</h2>
+            <h2 id="cuentas-clientes-titulo">
+              Cuentas corrientes <span className="fiados-contador">{clientes.length}</span>
+            </h2>
             <p>Clientes ordenados por saldo, de mayor a menor.</p>
           </div>
           <button
             type="button"
             className="boton boton--secundario"
-            disabled={cargandoCierre}
+            disabled={cargandoCierre || cerrando}
             onClick={() => void prepararCierre()}
           >
             {cargandoCierre ? "Consultando…" : "Cerrar el día"}
           </button>
         </div>
         {clientes.length === 0 ? (
-          <p className="estado-vacio">Todavía no hay cuentas corrientes con saldo pendiente.</p>
+          <div className="fiados-vacio">
+            <strong>Todavía no hay cuentas con saldo.</strong>
+            <p>Cuando registres una compra fiada, la cuenta del cliente va a aparecer acá.</p>
+          </div>
         ) : (
           <div className="lista-ventas">
             {clientes.map((cliente) => (
               <Link className="cliente-con-saldo" href={`/fiados/${cliente.id}`} key={cliente.id}>
-                <strong>{cliente.nombre}</strong>
-                <span>Saldo {formatearPesos(cliente.saldo)}</span>
+                <span className="cliente-con-saldo__identidad">
+                  <strong>{cliente.nombre}</strong>
+                  <small>
+                    Ver cuenta y movimientos <span aria-hidden="true">→</span>
+                  </small>
+                </span>
+                <span className="cliente-con-saldo__importe">
+                  <small>Saldo pendiente</small>
+                  <strong>{formatearPesos(cliente.saldo)}</strong>
+                </span>
               </Link>
             ))}
           </div>
@@ -205,10 +251,13 @@ export function FiadosInicio({
         aria-labelledby="cierre-dia-titulo"
         onCancel={(event) => {
           event.preventDefault();
+          cerrarDialogo();
+        }}
+        onClose={() => {
           setDialogoAbierto(false);
         }}
         onClick={(event) => {
-          if (event.target === event.currentTarget) setDialogoAbierto(false);
+          if (event.target === event.currentTarget) cerrarDialogo();
         }}
       >
         <h2 id="cierre-dia-titulo">Cerrar el día</h2>
@@ -229,7 +278,8 @@ export function FiadosInicio({
           <button
             type="button"
             className="boton boton--secundario"
-            onClick={() => setDialogoAbierto(false)}
+            disabled={cerrando}
+            onClick={cerrarDialogo}
           >
             Cancelar
           </button>

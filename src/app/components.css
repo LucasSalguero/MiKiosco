@@ -917,6 +917,11 @@
   overflow-y: auto;
 }
 
+.dialogo-fiado:not([open]),
+.dialogo-cierre-dia:not([open]) {
+  display: none;
+}
+
 .dialogo-fiado p,
 .dialogo-cierre-dia p {
   margin: 0;
@@ -1088,5 +1093,364 @@
     order: 3;
     flex-basis: 100%;
     margin-top: 0;
+  }
+}
+
+.historial__descripcion {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.fiados-inicio {
+  gap: 18px;
+  padding-top: 20px;
+}
+
+.fiados-resumen {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fiados-resumen article {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  padding: 16px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.fiados-resumen article > span,
+.fiados-resumen article > small {
+  color: var(--muted);
+}
+
+.fiados-resumen article > span {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.fiados-resumen article > strong {
+  font-size: clamp(20px, 4vw, 26px);
+  line-height: 1.15;
+}
+
+.fiados-resumen__hoy {
+  border-color: #e9d29a !important;
+  background: #fff9e9 !important;
+}
+
+.fiados-contador {
+  display: inline-grid;
+  min-width: 26px;
+  min-height: 26px;
+  margin-left: 4px;
+  padding: 0 7px;
+  place-items: center;
+  border-radius: 999px;
+  background: #e8f5ef;
+  color: var(--verde-oscuro);
+  font-size: 13px;
+  vertical-align: 2px;
+}
+
+.fiados-por-cobrar {
+  border-radius: 12px;
+  box-shadow: 0 2px 10px #6d4e120a;
+}
+
+.fiados-seccion__encabezado {
+  margin-bottom: 14px;
+}
+
+.fiados-seccion__encabezado h2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fiados-medio {
+  width: min(220px, 42%);
+}
+
+.venta-por-cobrar {
+  border-color: #eadfbf;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px #6d4e1208;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.venta-por-cobrar a {
+  min-height: 24px;
+  color: var(--verde-oscuro);
+  font-weight: 750;
+  text-decoration: underline;
+  text-decoration-color: #b7d8ca;
+  text-underline-offset: 3px;
+}
+
+.venta-por-cobrar__saldo {
+  display: grid;
+  gap: 3px;
+  text-align: right;
+}
+
+.venta-por-cobrar__saldo small {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.fiados-cuentas {
+  gap: 14px;
+}
+
+.cliente-con-saldo {
+  min-height: 72px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.cliente-con-saldo__identidad,
+.cliente-con-saldo__importe {
+  display: grid;
+  gap: 4px;
+}
+
+.cliente-con-saldo__identidad strong {
+  color: var(--tinta);
+  font-size: 16px;
+}
+
+.cliente-con-saldo__identidad small,
+.cliente-con-saldo__importe small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.cliente-con-saldo__importe {
+  justify-items: end;
+  text-align: right;
+}
+
+.cliente-con-saldo__importe strong {
+  color: var(--tinta);
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.cliente-con-saldo:hover,
+.venta-por-cobrar:hover {
+  transform: translateY(-1px);
+  border-color: #a9cdbc;
+  box-shadow: 0 4px 12px #1720330d;
+}
+
+.fiados-vacio {
+  padding: 20px;
+  border: 1px dashed #cbd7d2;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.fiados-vacio p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.cuenta-cliente-pagina {
+  gap: 18px;
+}
+
+.cuenta-cliente-pagina__encabezado {
+  align-items: center;
+  padding: 18px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.cuenta-cliente-pagina__encabezado > div:first-child > p:last-child {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.saldo-cuenta-destacado {
+  display: grid;
+  min-width: 180px;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #e8f5ef;
+  color: var(--verde-oscuro);
+}
+
+.saldo-cuenta-destacado span {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.saldo-cuenta-destacado strong {
+  font-size: 22px;
+  white-space: nowrap;
+}
+
+.registrar-pago {
+  gap: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px #17203308;
+}
+
+.registrar-pago h2 {
+  font-size: 18px;
+}
+
+.historial-cuenta__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.historial-cuenta__encabezado > span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.lista-movimientos-cuenta {
+  gap: 12px;
+}
+
+.movimiento-cuenta {
+  gap: 12px;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px #17203308;
+}
+
+.movimiento-cuenta--venta {
+  border-left: 3px solid #d8b85f;
+}
+
+.movimiento-cuenta--pago {
+  border-left: 3px solid #77b69a;
+}
+
+.movimiento-cuenta__encabezado > strong {
+  white-space: nowrap;
+}
+
+.movimiento-cuenta ul {
+  padding: 10px 0 10px 20px;
+  border-top: 1px solid #edf0ef;
+  border-bottom: 1px solid #edf0ef;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.venta-cuenta__saldo {
+  color: #795900;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.historial-cuenta .estado-vacio {
+  padding: 18px;
+  border: 1px dashed #cbd7d2;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.fiados-inicio a:focus-visible,
+.cuenta-cliente-pagina a:focus-visible,
+.fiados-inicio button:focus-visible,
+.cuenta-cliente-pagina button:focus-visible,
+.fiados-inicio select:focus-visible,
+.cuenta-cliente-pagina input:focus-visible,
+.cuenta-cliente-pagina select:focus-visible {
+  outline: 3px solid #68a98c;
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .fiados-inicio {
+    gap: 14px;
+    padding-top: 16px;
+  }
+
+  .fiados-resumen {
+    gap: 8px;
+  }
+
+  .fiados-resumen article {
+    padding: 12px;
+  }
+
+  .fiados-resumen article > small {
+    font-size: 11px;
+  }
+
+  .fiados-seccion__encabezado {
+    gap: 10px;
+  }
+
+  .fiados-seccion__encabezado h2 {
+    flex-wrap: wrap;
+  }
+
+  .fiados-medio {
+    width: 100%;
+  }
+
+  .cliente-con-saldo {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .cliente-con-saldo__identidad strong,
+  .cliente-con-saldo__importe strong {
+    font-size: 14px;
+  }
+
+  .cuenta-cliente-pagina {
+    gap: 14px;
+    padding-top: 16px;
+  }
+
+  .cuenta-cliente-pagina__encabezado {
+    align-items: stretch;
+    padding: 14px;
+  }
+
+  .saldo-cuenta-destacado {
+    min-width: 0;
+  }
+
+  .movimiento-cuenta {
+    padding: 12px;
+  }
+
+  .movimiento-cuenta__encabezado {
+    align-items: flex-start;
+  }
+
+  .movimiento-cuenta__encabezado > strong {
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .venta-por-cobrar,
+  .cliente-con-saldo {
+    transition: none;
   }
 }

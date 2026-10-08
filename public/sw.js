@@ -1,4 +1,4 @@
-const CACHE_NAME = "mi-kiosco-shell-v5";
+const CACHE_NAME = "mi-kiosco-shell-v6";
 const OFFLINE_URL = "/offline.html";
 const SHELL_URLS = [
   OFFLINE_URL,
@@ -11,6 +11,23 @@ const SHELL_URLS = [
 
 async function fetchConTimeout(request, milisegundos) {
   return fetch(request, { signal: AbortSignal.timeout(milisegundos) });
+}
+
+async function fetchActualizado(request) {
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const copia = response.clone();
+      void caches
+        .open(CACHE_NAME)
+        .then((cache) => cache.put(request, copia))
+        .catch(() => undefined);
+    }
+    return response;
+  } catch {
+    const cached = await caches.match(request);
+    return cached ?? Response.error();
+  }
 }
 
 self.addEventListener("install", (event) => {
@@ -60,11 +77,12 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (
-    url.pathname.startsWith("/_next/static/") ||
-    request.destination === "image" ||
-    request.destination === "manifest"
-  ) {
+  if (url.pathname.startsWith("/_next/static/")) {
+    event.respondWith(fetchActualizado(request));
+    return;
+  }
+
+  if (request.destination === "image" || request.destination === "manifest") {
     event.respondWith(
       caches.match(request).then(
         (cached) =>

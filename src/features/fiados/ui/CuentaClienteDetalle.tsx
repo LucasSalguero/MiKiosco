@@ -151,11 +151,11 @@ export function CuentaClienteDetalle({ cuenta }: { cuenta: CuentaCliente }): Rea
             ))}
           </ul>
           {item.autorizadaPor ? <p>Autorizó: {item.autorizadaPor}</p> : null}
-          {item.saldoPendiente > 0 ? (
-            <p>Saldo de esta venta: {formatearPesos(item.saldoPendiente)}</p>
-          ) : (
-            <p className="etiqueta-cobrada">Cobrada</p>
-          )}
+          <p className={item.saldoPendiente > 0 ? "venta-cuenta__saldo" : "etiqueta-cobrada"}>
+            {item.saldoPendiente > 0
+              ? `Pendiente: ${formatearPesos(item.saldoPendiente)}`
+              : "Cobrada"}
+          </p>
           {item.saldoPendiente > 0 ? (
             <button
               type="button"
@@ -208,7 +208,10 @@ export function CuentaClienteDetalle({ cuenta }: { cuenta: CuentaCliente }): Rea
           <h1>{cuenta.cliente.nombre}</h1>
           {cuenta.cliente.telefono ? <p>{cuenta.cliente.telefono}</p> : null}
         </div>
-        <strong>Saldo {formatearPesos(cuenta.saldo)}</strong>
+        <div className="saldo-cuenta-destacado">
+          <span>Saldo pendiente</span>
+          <strong>{formatearPesos(cuenta.saldo)}</strong>
+        </div>
       </header>
 
       {cuenta.saldo > 0 ? (
@@ -252,7 +255,14 @@ export function CuentaClienteDetalle({ cuenta }: { cuenta: CuentaCliente }): Rea
       ) : null}
 
       <section className="historial-cuenta" aria-label="Historial de compras y pagos">
-        <h2>Movimientos</h2>
+        <div className="historial-cuenta__encabezado">
+          <h2>Movimientos</h2>
+          <span>
+            {cuenta.movimientos.length === 1
+              ? "1 movimiento"
+              : `${cuenta.movimientos.length} movimientos`}
+          </span>
+        </div>
         {cuenta.movimientos.length === 0 ? (
           <p className="estado-vacio">Esta cuenta todavía no tiene movimientos.</p>
         ) : (
