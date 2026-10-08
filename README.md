@@ -69,10 +69,12 @@ servidor debe reiniciarse luego de editar `.env`.
 La sesión se guarda en una cookie `HttpOnly`, `SameSite=Strict` y `Secure` en
 producción, y vence a las 12 horas. Sin ambas variables de autenticación
 configuradas, las rutas y acciones privadas permanecen bloqueadas.
-El desbloqueo limita los intentos por IP en cada proceso: cinco PINs incorrectos
-en una ventana de 15 minutos bloquean nuevos intentos durante cinco minutos. Si
-se ejecutan varias instancias, configurar además el rate limit compartido del
-proveedor o del proxy.
+El límite de PIN se guarda en PostgreSQL y se comparte entre instancias: cinco
+intentos incorrectos en una ventana de 15 minutos bloquean nuevos intentos
+durante cinco minutos. La clave de origen se almacena con HMAC, no como una IP
+en texto plano. El proxy de entrada debe establecer `x-forwarded-for`
+correctamente; si PostgreSQL no está disponible, el desbloqueo falla de forma
+cerrada.
 
 ## Base de datos
 
@@ -91,6 +93,39 @@ npx prisma migrate status
 El schema se encuentra en `prisma/schema.prisma` y el cliente singleton de
 Prisma en `src/shared/db/client.ts`.
 
+### Limpieza antes del primer día
+
+No hay una tabla de usuarios: la autenticación usa un PIN configurado como
+secreto. Como los productos y las ventas no tienen una marca que identifique
+datos de prueba, el script ofrece un reinicio total de los datos de la
+aplicación (productos, ventas, ítems, clientes, pagos y límites de intentos). Conserva
+el esquema y el historial de migraciones.
+
+Primero aplicá las migraciones y hacé/verificá un backup. La vista previa no
+modifica la base:
+
+```bash
+npm run db:limpiar
+```
+
+Si los conteos y el nombre de base son los esperados, aplicá la limpieza
+confirmando el nombre exacto de la base y que el backup fue verificado:
+
+```bash
+npm run db:limpiar -- --apply --backup-verified --confirm-database=<nombre-de-base>
+```
+
+El script vuelve a mostrar los conteos al terminar. No se ejecuta durante el
+arranque ni como parte del despliegue. No uses `--apply` sobre una base que ya
+contenga datos reales que quieras conservar.
+
+Antes de aplicarlo, cerrá la aplicación y la PWA en todos los dispositivos para
+que no sincronicen ventas durante el reinicio. Revisá que no haya ventas
+legítimas sin sincronizar; luego de la limpieza, borrá los datos locales del
+sitio en cada dispositivo (incluye IndexedDB, caché y service worker) y volvé a
+abrirlo conectado. Esto elimina también cualquier venta de prueba que hubiera
+quedado en la cola offline; no se puede hacer desde el script del servidor.
+
 ## Despliegue en producción
 
 La aplicación puede ejecutarse en Render, Railway, Fly.io o un servidor Node
@@ -108,10 +143,16 @@ con PostgreSQL gestionado en Neon, Supabase u otro proveedor compatible.
 4. Servir la aplicación mediante HTTPS para habilitar la cookie segura y la
    instalación de la PWA. El manifiesto incluye iconos Android y Apple; en
    iOS, usar **Compartir → Agregar a inicio**.
+5. Activar en el proveedor de PostgreSQL backups automáticos diarios con al
+   menos siete días de retención y tomar un backup manual antes de la limpieza.
+   Antes de abrir el kiosco, restaurar un backup reciente en una base separada
+   y comprobar que se pueden consultar productos y ventas. No probar la
+   restauración sobre la base de producción.
 
 No ejecutar `prisma migrate dev` en producción. El proveedor debe permitir
 conexiones salientes a PostgreSQL y conservar las variables de entorno entre
-reinicios.
+reinicios. Los backups administrados son una configuración del proveedor y
+deben verificarse allí; el proyecto no crea ni programa backups por sí solo.
 
 ## Estructura
 
