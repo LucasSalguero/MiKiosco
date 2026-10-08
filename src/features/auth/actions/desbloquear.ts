@@ -12,48 +12,15 @@ import {
 import { fallo, ok } from "@/shared/lib/resultado";
 import type { Resultado } from "@/shared/types/resultado";
 import { esHashPinValido } from "@/features/auth/lib/hash-pin";
-
-const INTENTOS_MAXIMOS = 5;
-const VENTANA_INTENTOS_MS = 15 * 60 * 1000;
-const DURACION_BLOQUEO_MS = 5 * 60 * 1000;
-const intentosPorOrigen = new Map<
-  string,
-  { cantidad: number; ventanaInicia: number; bloqueadoHasta: number }
->();
+import {
+  claveOrigen,
+  limpiarFallasDeOrigen,
+  origenEstaBloqueado,
+  registrarFalloDeOrigen,
+} from "@/features/auth/lib/limite-intentos";
 
 function origenDePeticion(valor: string | null): string {
   return valor?.split(",").at(-1)?.trim() || "desconocido";
-}
-
-function puedeIntentar(origen: string, ahora: number): boolean {
-  for (const [clave, estado] of intentosPorOrigen) {
-    if (
-      (estado.bloqueadoHasta > 0 && estado.bloqueadoHasta <= ahora) ||
-      ahora - estado.ventanaInicia >= VENTANA_INTENTOS_MS
-    ) {
-      intentosPorOrigen.delete(clave);
-    }
-  }
-
-  if (intentosPorOrigen.size > 5000) {
-    const claveMasAntigua = intentosPorOrigen.keys().next().value;
-    if (claveMasAntigua) intentosPorOrigen.delete(claveMasAntigua);
-  }
-
-  const estado = intentosPorOrigen.get(origen);
-  return !estado || estado.bloqueadoHasta <= ahora;
-}
-
-function registrarFallo(origen: string, ahora: number): void {
-  const estado = intentosPorOrigen.get(origen);
-  const ventanaVigente = estado && ahora - estado.ventanaInicia < VENTANA_INTENTOS_MS;
-  const cantidad = ventanaVigente ? estado.cantidad + 1 : 1;
-
-  intentosPorOrigen.set(origen, {
-    cantidad,
-    ventanaInicia: ventanaVigente ? estado.ventanaInicia : ahora,
-    bloqueadoHasta: cantidad >= INTENTOS_MAXIMOS ? ahora + DURACION_BLOQUEO_MS : 0,
-  });
 }
 
 export async function desbloquear(pin: unknown): Promise<Resultado<boolean>> {
@@ -74,19 +41,27 @@ export async function desbloquear(pin: unknown): Promise<Resultado<boolean>> {
     console.error("auth.desbloquear", "AUTH_SESSION_SECRET falta o tiene menos de 32 caracteres.");
     return fallo("Falta configurar AUTH_SESSION_SECRET en el servidor.", "unknown");
   }
-  const origen = origenDePeticion((await headers()).get("x-forwarded-for"));
-  const ahora = Date.now();
-  if (!puedeIntentar(origen, ahora)) {
-    return fallo(
-      "Demasiados intentos. Esperá unos minutos antes de probar de nuevo.",
-      "unauthorized",
-    );
+  const origen = claveOrigen(
+    origenDePeticion((await headers()).get("x-forwarded-for")),
+    process.env.AUTH_SESSION_SECRET,
+  );
+  try {
+    const ahora = new Date();
+    if (await origenEstaBloqueado(origen, ahora)) {
+      return fallo(
+        "Demasiados intentos. Esperá unos minutos antes de probar de nuevo.",
+        "unauthorized",
+      );
+    }
+    if (!verificarPinConfigurado(pin)) {
+      await registrarFalloDeOrigen(origen, ahora);
+      return fallo("El PIN ingresado no es correcto.", "unauthorized");
+    }
+    await limpiarFallasDeOrigen(origen);
+  } catch (error) {
+    console.error("auth.desbloquear.rateLimit", error);
+    return fallo("No se pudo validar el acceso. Reintentá en unos instantes.", "database");
   }
-  if (!verificarPinConfigurado(pin)) {
-    registrarFallo(origen, ahora);
-    return fallo("El PIN ingresado no es correcto.", "unauthorized");
-  }
-  intentosPorOrigen.delete(origen);
 
   const token = crearTokenSesion();
   if (!token) {

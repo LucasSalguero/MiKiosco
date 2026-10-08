@@ -84,3 +84,13 @@ model Pago {
   @@index([clienteFiadoId, anulado])
   @@index([ventaId])
 }
+
+model AuthRateLimit {
+  origen         String    @id @db.VarChar(64)
+  intentos       Int       @default(0)
+  ventanaInicia  DateTime
+  bloqueadoHasta DateTime?
+  expiraEn       DateTime
+
+  @@index([expiraEn])
+}
