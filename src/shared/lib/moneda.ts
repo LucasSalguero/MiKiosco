@@ -18,3 +18,13 @@ export function redondearMonto(n: number): number {
 export function formatearCantidad(cantidad: number): string {
   return new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(cantidad);
 }
+
+/** Valor monetario tal como llega de Prisma (Decimal), de un string o de un número. */
+export type MontoDecimal = { toString: () => string } | number | string;
+
+/** Convierte un importe con hasta 2 decimales a centavos enteros, sin depender de Prisma. */
+export function aCentavos(valor: MontoDecimal): number {
+  const numero = typeof valor === "number" ? valor : Number(valor.toString());
+  if (!Number.isFinite(numero)) return 0;
+  return Math.round((numero + (numero < 0 ? -Number.EPSILON : Number.EPSILON)) * 100);
+}
