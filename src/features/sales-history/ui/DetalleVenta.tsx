@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 
 import { formatearPesos } from "@/shared/lib/moneda";
+import { etiquetaMedioPago } from "@/shared/lib/medio-pago";
 import { Boton } from "@/shared/ui/Boton";
 import type { Venta } from "@/shared/types/venta";
 
@@ -19,7 +20,7 @@ export function DetalleVenta({
       </div>
       <p className="etiqueta-pendiente">
         {venta.estadoPago === "PAGADA"
-          ? "Cobrada"
+          ? `Cobrada · ${etiquetaMedioPago(venta.medioPago ?? "DESCONOCIDO")}`
           : venta.saldoPendiente <= 0
             ? "Fiado cobrado"
             : venta.estadoPago === "A_COBRAR_HOY"

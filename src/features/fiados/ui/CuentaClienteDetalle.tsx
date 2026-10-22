@@ -13,6 +13,7 @@ import type {
 import { formatearPesos } from "@/shared/lib/moneda";
 import { ConfirmarAccion } from "@/shared/ui/ConfirmarAccion";
 import { useToast } from "@/shared/ui/use-toast";
+import { etiquetaMedioPago } from "@/shared/lib/medio-pago";
 
 function fechaHora(fecha: string): string {
   return new Intl.DateTimeFormat("es-AR", {
@@ -178,7 +179,7 @@ export function CuentaClienteDetalle({ cuenta }: { cuenta: CuentaCliente }): Rea
         <div className="movimiento-cuenta__encabezado">
           <div>
             <strong>Pago · {fechaHora(item.fecha)}</strong>
-            <small>{item.medio === "DESCONOCIDO" ? "Medio no registrado" : item.medio}</small>
+            <small>{etiquetaMedioPago(item.medio)}</small>
           </div>
           <strong>{formatearPesos(item.monto)}</strong>
         </div>
