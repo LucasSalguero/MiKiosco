@@ -3,7 +3,10 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { formatearPesos } from "@/shared/lib/moneda";
 import { normalizarNombreCliente } from "@/features/fiados/lib/normalizar-nombre-cliente";
-import type { Cliente, ItemNuevaVenta } from "@/shared/types/venta";
+import { etiquetaMedioPago } from "@/shared/lib/medio-pago";
+import type { Cliente, ItemNuevaVenta, MedioPago } from "@/shared/types/venta";
+
+const MEDIOS_COBRO: readonly MedioPago[] = ["EFECTIVO", "TRANSFERENCIA"];
 
 type DatosFiado = {
   estadoPago: "A_COBRAR_HOY" | "FIADA";
@@ -30,7 +33,7 @@ export function CarritoVenta({
   onCambiarCantidad: (indice: number, cantidad: number) => void;
   onQuitar: (indice: number) => void;
   onAgregarConcepto: (descripcion: string, importe: number) => void;
-  onCobrar: () => Promise<boolean>;
+  onCobrar: (medio: MedioPago) => Promise<boolean>;
   onFiar: (datos: DatosFiado) => Promise<boolean>;
   cobrando?: boolean;
 }): ReactElement {
@@ -164,14 +167,21 @@ export function CarritoVenta({
           <span>Total</span>
           <strong>{formatearPesos(total)}</strong>
         </div>
-        <button
-          type="button"
-          className="boton-cobrar"
-          disabled={items.length === 0 || cobrando}
-          onClick={() => void onCobrar()}
-        >
-          {cobrando ? "Guardando…" : `Cobrar ${formatearPesos(total)}`}
-        </button>
+        <div className="botones-cobro">
+          {MEDIOS_COBRO.map((medio) => (
+            <button
+              key={medio}
+              type="button"
+              className={`boton-cobrar boton-cobrar--${medio.toLowerCase()}`}
+              disabled={items.length === 0 || cobrando}
+              aria-label={`Cobrar ${formatearPesos(total)} en ${etiquetaMedioPago(medio).toLowerCase()}`}
+              onClick={() => void onCobrar(medio)}
+            >
+              <span>{etiquetaMedioPago(medio)}</span>
+              <strong>{cobrando ? "Guardando…" : formatearPesos(total)}</strong>
+            </button>
+          ))}
+        </div>
         <button
           type="button"
           className="boton boton--secundario boton-fiar"

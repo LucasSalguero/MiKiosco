@@ -12,7 +12,14 @@ import { GrillaProductos } from "@/features/sales/ui/GrillaProductos";
 import { useToast } from "@/shared/ui/use-toast";
 import { cargarClientes } from "@/features/fiados/lib/cargar-clientes";
 import type { Producto } from "@/shared/types/producto";
-import type { Cliente, EstadoPago, ItemNuevaVenta, NuevaVenta } from "@/shared/types/venta";
+import { etiquetaMedioPago } from "@/shared/lib/medio-pago";
+import type {
+  Cliente,
+  EstadoPago,
+  ItemNuevaVenta,
+  MedioPago,
+  NuevaVenta,
+} from "@/shared/types/venta";
 
 export function VentaRapida({ productos }: { productos: Producto[] }): ReactElement {
   const [carrito, setCarrito] = useState<ItemNuevaVenta[]>([]);
@@ -68,13 +75,14 @@ export function VentaRapida({ productos }: { productos: Producto[] }): ReactElem
     }
     if (typeof window !== "undefined") window.dispatchEvent(new Event("ventas-pendientes-cambio"));
     const estadoPago = nuevaVenta.estadoPago ?? "PAGADA";
+    const medio = nuevaVenta.medioPago ? ` · ${etiquetaMedioPago(nuevaVenta.medioPago)}` : "";
     const mensaje =
       resultado.data.estado === "pendiente"
         ? estadoPago === "PAGADA"
-          ? "Venta guardada. Se sincronizará cuando vuelva la conexión."
+          ? `Venta guardada sin conexión${medio}. Se sincronizará cuando vuelva la conexión.`
           : "Fiado guardado. Se sincronizará cuando vuelva la conexión."
         : estadoPago === "PAGADA"
-          ? "Venta registrada."
+          ? `Venta registrada${medio}`
           : estadoPago === "A_COBRAR_HOY"
             ? "Quedó anotado para cobrar hoy."
             : "Fiado registrado en la cuenta mensual.";
@@ -84,8 +92,13 @@ export function VentaRapida({ productos }: { productos: Producto[] }): ReactElem
     });
     return true;
   };
-  const manejarCobrar = () =>
-    registrar({ fecha: new Date().toISOString(), items: carrito, estadoPago: "PAGADA" });
+  const manejarCobrar = (medioPago: MedioPago) =>
+    registrar({
+      fecha: new Date().toISOString(),
+      items: carrito,
+      estadoPago: "PAGADA",
+      medioPago,
+    });
   const manejarFiar = (datos: {
     estadoPago: "A_COBRAR_HOY" | "FIADA";
     clienteFiadoId?: number;
