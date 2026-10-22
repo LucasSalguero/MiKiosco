@@ -33,6 +33,7 @@ model Venta {
   fecha           DateTime    @default(now())
   total           Decimal     @db.Decimal(12, 2)
   estadoPago      EstadoPago  @default(PAGADA)
+  medioPago       MedioPago?
   clienteFiadoId  Int?
   clienteNombre   String?
   autorizadaPor   String?     @db.VarChar(120)
