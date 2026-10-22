@@ -140,7 +140,7 @@ input:focus-visible {
   font-size: 14px;
 }
 .buscador input {
-  width: 112px;
+  width: min(220px, 46vw);
   min-height: 44px;
   border: 1px solid var(--borde);
   border-radius: 10px;

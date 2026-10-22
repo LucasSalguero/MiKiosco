@@ -1799,3 +1799,37 @@
   color: #5c3400;
   font-weight: 650;
 }
+
+/* Grilla de venta: filtro por categoría */
+.chips-categorias {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding-bottom: 4px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.chip-categoria {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--tinta);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.chip-categoria[aria-pressed="true"] {
+  border-color: var(--verde);
+  background: var(--verde);
+  color: #fff;
+}
+
+.producto-marca {
+  color: var(--muted);
+  font-size: 13px;
+}
