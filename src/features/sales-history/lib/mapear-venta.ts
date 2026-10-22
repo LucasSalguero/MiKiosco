@@ -1,4 +1,4 @@
-import type { Venta } from "@/shared/types/venta";
+import type { MedioPagoRegistrado, Venta } from "@/shared/types/venta";
 import { decimalANumero } from "@/shared/lib/moneda";
 
 type VentaPersistida = {
@@ -8,6 +8,7 @@ type VentaPersistida = {
   sincronizada: boolean;
   anulada: boolean;
   estadoPago: "PAGADA" | "A_COBRAR_HOY" | "FIADA";
+  medioPago: MedioPagoRegistrado | null;
   clienteFiadoId: number | null;
   clienteFiado: { nombre: string } | null;
   clienteNombre: string | null;
@@ -31,6 +32,7 @@ export function mapearVenta(venta: VentaPersistida): Venta {
     sincronizada: venta.sincronizada,
     anulada: venta.anulada,
     estadoPago: venta.estadoPago,
+    medioPago: venta.medioPago,
     clienteFiadoId: venta.clienteFiadoId,
     clienteNombre: venta.clienteFiado?.nombre ?? venta.clienteNombre,
     autorizadaPor: venta.autorizadaPor,

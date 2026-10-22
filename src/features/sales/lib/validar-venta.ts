@@ -1,4 +1,9 @@
-import type { NuevaVenta, EstadoPago, ItemNuevaVenta } from "@/shared/types/venta";
+import type {
+  EstadoPago,
+  ItemNuevaVenta,
+  MedioPagoRegistrado,
+  NuevaVentaValidada,
+} from "@/shared/types/venta";
 import type { Resultado } from "@/shared/types/resultado";
 import { fallo, ok } from "@/shared/lib/resultado";
 import { esIdEnteroValido } from "@/shared/lib/validar-id";
@@ -12,10 +17,36 @@ function esRegistro(valor: unknown): valor is Record<string, unknown> {
   return typeof valor === "object" && valor !== null;
 }
 
+/**
+ * Una venta PAGADA exige EFECTIVO o TRANSFERENCIA. Si viene de la cola offline
+ * sin medio (guardada por una versión anterior), se acepta como DESCONOCIDO.
+ * Las ventas fiadas o a cobrar hoy no llevan medio: se registra en el Pago.
+ */
+function resolverMedioPago(
+  medio: unknown,
+  estadoPago: EstadoPago,
+  esReintentoOffline: boolean,
+): Resultado<MedioPagoRegistrado | null> {
+  if (medio !== undefined && medio !== "EFECTIVO" && medio !== "TRANSFERENCIA") {
+    return fallo("El medio de pago no es válido.", "validation");
+  }
+  if (estadoPago !== "PAGADA") {
+    return medio === undefined
+      ? ok(null)
+      : fallo("El medio de pago se registra al cobrar el fiado, no al anotarlo.", "validation");
+  }
+  if (medio !== undefined) return ok(medio);
+  if (esReintentoOffline) return ok("DESCONOCIDO");
+  return fallo(
+    "Elegí efectivo o transferencia. Si ves este mensaje seguido, actualizá la app.",
+    "validation",
+  );
+}
+
 export function validarNuevaVenta(
   venta: unknown,
   esReintentoOffline = false,
-): Resultado<NuevaVenta> {
+): Resultado<NuevaVentaValidada> {
   if (!esRegistro(venta) || !Array.isArray(venta.items) || venta.items.length === 0) {
     return fallo("La venta debe incluir al menos un producto.", "validation");
   }
@@ -47,6 +78,9 @@ export function validarNuevaVenta(
   if (estadoPago !== "PAGADA" && estadoPago !== "A_COBRAR_HOY" && estadoPago !== "FIADA") {
     return fallo("El estado de pago no es válido.", "validation");
   }
+
+  const medioPago = resolverMedioPago(venta.medioPago, estadoPago, esReintentoOffline);
+  if (!medioPago.ok) return medioPago;
 
   const clienteFiadoId = venta.clienteFiadoId;
   if (venta.clienteNuevoNombre !== undefined && typeof venta.clienteNuevoNombre !== "string") {
@@ -160,6 +194,7 @@ export function validarNuevaVenta(
     fecha: venta.fecha,
     items,
     estadoPago,
+    ...(medioPago.data ? { medioPago: medioPago.data } : {}),
     ...(typeof clienteFiadoId === "number" ? { clienteFiadoId } : {}),
     ...(tieneClienteNuevo ? { clienteNuevoNombre } : {}),
     ...(estadoPago === "FIADA"

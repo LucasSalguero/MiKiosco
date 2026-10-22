@@ -29,6 +29,7 @@ export async function POST(request: Request): Promise<Response> {
     !esRegistro(cuerpo.venta) ||
     typeof cuerpo.venta.fecha !== "string" ||
     !Array.isArray(cuerpo.venta.items) ||
+    (cuerpo.venta.medioPago !== undefined && typeof cuerpo.venta.medioPago !== "string") ||
     (cuerpo.esReintentoOffline !== undefined && typeof cuerpo.esReintentoOffline !== "boolean")
   ) {
     return Response.json(

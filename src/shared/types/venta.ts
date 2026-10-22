@@ -1,5 +1,8 @@
 export type EstadoPago = "PAGADA" | "A_COBRAR_HOY" | "FIADA";
+/** Medios que el usuario puede elegir al cobrar. */
 export type MedioPago = "EFECTIVO" | "TRANSFERENCIA";
+/** Medio guardado: DESCONOCIDO lo asigna solo el servidor a registros anteriores al dato. */
+export type MedioPagoRegistrado = MedioPago | "DESCONOCIDO";
 
 export type VentaItem = {
   id: number;
@@ -17,6 +20,7 @@ export type Venta = {
   sincronizada: boolean;
   anulada: boolean;
   estadoPago: EstadoPago;
+  medioPago: MedioPagoRegistrado | null;
   clienteFiadoId: number | null;
   clienteNombre: string | null;
   autorizadaPor: string | null;
@@ -42,6 +46,7 @@ export type NuevaVenta = {
   fecha: string;
   items: ItemNuevaVenta[];
   estadoPago?: EstadoPago;
+  medioPago?: MedioPago;
   clienteFiadoId?: number;
   clienteNuevoNombre?: string;
   autorizadaPor?: string;
@@ -59,3 +64,8 @@ export type VentaPendiente = {
 };
 
 export type Carrito = ItemNuevaVenta[];
+
+/** Venta ya validada por el servidor: puede traer DESCONOCIDO en ventas viejas de la cola offline. */
+export type NuevaVentaValidada = Omit<NuevaVenta, "medioPago"> & {
+  medioPago?: MedioPagoRegistrado;
+};
