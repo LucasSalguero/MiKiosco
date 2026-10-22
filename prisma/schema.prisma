@@ -18,13 +18,28 @@ enum MedioPago {
   DESCONOCIDO
 }
 
+enum CategoriaProducto {
+  BEBIDAS
+  GOLOSINAS
+  CIGARRILLOS
+  ALMACEN
+  LACTEOS
+  PANIFICADOS
+  LIMPIEZA
+  SERVICIOS
+  VARIOS
+}
+
 model Producto {
-  id         Int         @id @default(autoincrement())
-  nombre     String
-  precio     Decimal     @db.Decimal(12, 2)
-  activo     Boolean     @default(true)
-  createdAt  DateTime    @default(now())
-  ventaItems VentaItem[]
+  id           Int               @id @default(autoincrement())
+  nombre       String
+  precio       Decimal           @db.Decimal(12, 2)
+  categoria    CategoriaProducto @default(VARIOS)
+  marca        String?           @db.VarChar(80)
+  codigoBarras String?           @unique @db.VarChar(32)
+  activo       Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  ventaItems   VentaItem[]
 }
 
 model Venta {
