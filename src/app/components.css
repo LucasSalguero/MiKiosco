@@ -1771,3 +1771,31 @@
   margin: 0;
   color: var(--muted);
 }
+
+/* Productos: categoría, marca y duplicados */
+.producto-administrable__nombre {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+}
+
+.producto-administrable__nombre small {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.aviso-duplicado {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border-left: 4px solid var(--ambar);
+  border-radius: 8px;
+  background: #fdf1e1;
+}
+
+.aviso-duplicado p {
+  margin: 0;
+  color: #5c3400;
+  font-weight: 650;
+}

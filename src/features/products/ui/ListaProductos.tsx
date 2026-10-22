@@ -4,7 +4,11 @@ import { useState, type ReactElement } from "react";
 
 import { Boton } from "@/shared/ui/Boton";
 import { ConfirmarAccion } from "@/shared/ui/ConfirmarAccion";
-import type { Producto } from "@/shared/types/producto";
+import { formatearPesos } from "@/shared/lib/moneda";
+import { CATEGORIAS, type CategoriaProducto, type Producto } from "@/shared/types/producto";
+
+const etiquetaCategoria = (categoria: CategoriaProducto) =>
+  CATEGORIAS.find((opcion) => opcion.valor === categoria)?.etiqueta ?? categoria;
 
 export function ListaProductos({
   productos,
@@ -39,8 +43,17 @@ export function ListaProductos({
               className="producto-administrable__seleccion"
               aria-label={`Editar ${producto.nombre}`}
             >
-              <span>{producto.nombre}</span>
-              <span className="producto-administrable__precio">${producto.precio.toFixed(2)}</span>
+              <span className="producto-administrable__nombre">
+                {producto.nombre}
+                <small>
+                  {[etiquetaCategoria(producto.categoria), producto.marca]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </small>
+              </span>
+              <span className="producto-administrable__precio">
+                {formatearPesos(producto.precio)}
+              </span>
             </button>
             {producto.activo && onDesactivar ? (
               <Boton variant="peligro" onClick={() => setProductoPorDesactivar(producto)}>
