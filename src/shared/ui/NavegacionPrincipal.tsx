@@ -10,6 +10,7 @@ import { useToast } from "@/shared/ui/use-toast";
 const destinos = [
   { href: "/", etiqueta: "Vender" },
   { href: "/historial", etiqueta: "Historial" },
+  { href: "/caja", etiqueta: "Caja" },
   { href: "/fiados", etiqueta: "Fiados" },
   { href: "/productos", etiqueta: "Productos" },
 ];

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { fechaLocalISO, rangoDelDia, ZONA_HORARIA } from "@/shared/lib/fechas";
+import { fechaLocalISO, horaLocal, rangoDelDia, ZONA_HORARIA } from "@/shared/lib/fechas";
 
 test("rangoDelDia usa medianoches de Buenos Aires, con fin exclusivo", () => {
   const { desde, hasta } = rangoDelDia("2026-10-02");
@@ -24,4 +24,10 @@ test("a las 21:00 y 00:00 el día se interpreta según Buenos Aires", () => {
   assert.equal(medianoche >= hasta, true);
   assert.equal(veintiuna < rangoDelDia("2026-10-03").desde, true);
   assert.equal(medianoche < rangoDelDia("2026-10-03").desde, false);
+});
+
+test("horaLocal usa la hora de Buenos Aires", () => {
+  assert.equal(horaLocal(new Date("2026-10-02T02:30:00.000Z")), 23);
+  assert.equal(horaLocal(new Date("2026-10-02T03:00:00.000Z")), 0);
+  assert.equal(horaLocal(new Date("2026-10-02T15:59:59.000Z")), 12);
 });

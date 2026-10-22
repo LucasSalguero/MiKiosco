@@ -4,6 +4,7 @@ import { ListaVentas } from "@/features/sales-history/ui/ListaVentas";
 import { SelectorDia } from "@/features/sales-history/ui/SelectorDia";
 import { PendientesDelDia } from "@/features/sales-history/ui/PendientesDelDia";
 import { esFechaISOValida, hoyISO } from "@/shared/lib/fechas";
+import { formatearCantidad, formatearPesos } from "@/shared/lib/moneda";
 import { consolidarVencidasDelDia } from "@/features/fiados/actions/consolidar-vencidas-del-dia";
 
 export default async function HistorialPage({
@@ -48,19 +49,17 @@ export default async function HistorialPage({
             ["Vendido", resultadoResumen.data.vendido],
             ["Cobrado", resultadoResumen.data.cobrado],
             ["Fiado nuevo", resultadoResumen.data.fiadoNuevo],
-            ["Ventas", resultadoResumen.data.cantidadVentas],
             ["Deuda total", resultadoResumen.data.deudaTotal],
           ].map(([etiqueta, importe]) => (
             <article key={etiqueta}>
               <span>{etiqueta}</span>
-              <strong>
-                {new Intl.NumberFormat("es-AR", {
-                  style: "currency",
-                  currency: "ARS",
-                }).format(Number(importe))}
-              </strong>
+              <strong>{formatearPesos(Number(importe))}</strong>
             </article>
           ))}
+          <article>
+            <span>Ventas</span>
+            <strong>{formatearCantidad(resultadoResumen.data.cantidadVentas)}</strong>
+          </article>
         </section>
         <ListaVentas ventas={resultadoVentas.data} />
       </section>

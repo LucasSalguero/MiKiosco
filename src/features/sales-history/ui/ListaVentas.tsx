@@ -9,6 +9,7 @@ import { ConfirmarAccion } from "@/shared/ui/ConfirmarAccion";
 import { useToast } from "@/shared/ui/use-toast";
 import { ZONA_HORARIA } from "@/shared/lib/fechas";
 import { formatearPesos } from "@/shared/lib/moneda";
+import { etiquetaMedioPago } from "@/shared/lib/medio-pago";
 import type { Venta } from "@/shared/types/venta";
 
 export function ListaVentas({ ventas }: { ventas: Venta[] }): ReactElement {
@@ -56,13 +57,19 @@ export function ListaVentas({ ventas }: { ventas: Venta[] }): ReactElement {
                 }).format(new Date(venta.fecha))}
               </span>
               <span className="fila-venta__total">{formatearPesos(venta.total)}</span>
-              {venta.estadoPago !== "PAGADA" ? (
+              {venta.estadoPago === "PAGADA" ? (
+                <span
+                  className={`etiqueta-medio etiqueta-medio--${(venta.medioPago ?? "DESCONOCIDO").toLowerCase()}`}
+                >
+                  {etiquetaMedioPago(venta.medioPago ?? "DESCONOCIDO")}
+                </span>
+              ) : (
                 <span className="etiqueta-pendiente">
                   {venta.saldoPendiente <= 0
                     ? "Cobrada"
                     : `${venta.estadoPago === "A_COBRAR_HOY" ? "A cobrar hoy" : "Fiado"} · saldo ${formatearPesos(venta.saldoPendiente)}`}
                 </span>
-              ) : null}
+              )}
               {venta.anulada ? <span className="etiqueta-anulada">Anulada</span> : null}
             </button>
             {ventaAbierta === venta.id ? (

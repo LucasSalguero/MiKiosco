@@ -51,7 +51,7 @@ export async function registrarFalloDeOrigen(origen: string, ahora: Date): Promi
         WHEN "AuthRateLimit"."expiraEn" <= ${ahora} THEN ${finVentana}
         WHEN "AuthRateLimit"."bloqueadoHasta" > ${ahora} THEN "AuthRateLimit"."bloqueadoHasta"
         WHEN "AuthRateLimit"."intentos" + 1 >= ${INTENTOS_MAXIMOS} THEN ${finBloqueo}
-        ELSE "AuthRateLimit"."ventanaInicia" + INTERVAL '15 minutes'
+        ELSE "AuthRateLimit"."ventanaInicia" + (${VENTANA_INTENTOS_MS}::double precision * INTERVAL '1 millisecond')
       END
   `;
 }

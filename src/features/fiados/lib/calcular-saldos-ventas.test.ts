@@ -41,3 +41,16 @@ test("un pago general puede dejar una venta de hoy sin saldo pendiente", () => {
 
   assert.equal(saldos.get(4), 0);
 });
+
+test("calcula en centavos sin errores de punto flotante", () => {
+  const saldos = calcularSaldosVentas(
+    [
+      { id: 1, fecha: "2026-05-01T12:00:00.000Z", total: "0.30", pagosAsociados: [0.1] },
+      { id: 2, fecha: "2026-05-02T12:00:00.000Z", total: 10.1, pagosAsociados: [] },
+    ],
+    [{ toString: () => "0.10" }, "5.05"],
+  );
+
+  assert.equal(saldos.get(1), 0);
+  assert.equal(saldos.get(2), 5.15);
+});

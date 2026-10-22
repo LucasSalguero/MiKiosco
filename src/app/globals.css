@@ -6,6 +6,9 @@
   --verde: #087c59;
   --verde-oscuro: #056246;
   --peligro: #bd3535;
+  --azul: #1f5ea8;
+  --azul-oscuro: #174a86;
+  --ambar: #a35c00;
 }
 * {
   box-sizing: border-box;
@@ -137,7 +140,7 @@ input:focus-visible {
   font-size: 14px;
 }
 .buscador input {
-  width: 112px;
+  width: min(220px, 46vw);
   min-height: 44px;
   border: 1px solid var(--borde);
   border-radius: 10px;
@@ -280,6 +283,37 @@ input:focus-visible {
 .boton-cobrar:disabled {
   cursor: not-allowed;
   background: #aeb8c3;
+}
+.pie-carrito > .botones-cobro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.botones-cobro .boton-cobrar {
+  display: flex;
+  min-height: 64px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px;
+  line-height: 1.15;
+}
+.botones-cobro .boton-cobrar span {
+  color: inherit;
+  font-size: 15px;
+  font-weight: 700;
+}
+.botones-cobro .boton-cobrar strong {
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+.boton-cobrar--transferencia {
+  background: var(--azul);
+}
+.boton-cobrar--transferencia:hover {
+  background: var(--azul-oscuro);
 }
 .contenedor-toasts {
   position: fixed;

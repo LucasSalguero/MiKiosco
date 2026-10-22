@@ -7,10 +7,12 @@ import { actualizarProducto } from "@/features/products/actions/actualizar-produ
 import { crearProducto } from "@/features/products/actions/crear-producto";
 import { desactivarProducto } from "@/features/products/actions/desactivar-producto";
 import { reactivarProducto } from "@/features/products/actions/reactivar-producto";
+import { ActualizacionMasiva } from "@/features/products/ui/ActualizacionMasiva";
 import { FormularioProducto } from "@/features/products/ui/FormularioProducto";
 import { ListaProductos } from "@/features/products/ui/ListaProductos";
+import { refrescarCatalogoLocal } from "@/features/products/lib/cargar-productos";
 import { useToast } from "@/shared/ui/use-toast";
-import type { DatosProducto, Producto } from "@/shared/types/producto";
+import type { CambioPrecio, DatosProducto, Producto } from "@/shared/types/producto";
 
 export function GestionProductos({
   productosIniciales,
@@ -21,6 +23,13 @@ export function GestionProductos({
   const [productoEditando, setProductoEditando] = useState<Producto | null>(null);
   const router = useRouter();
   const { mostrar } = useToast();
+
+  // La grilla de venta usa la caché del dispositivo cuando no hay conexión.
+  const actualizarCatalogoLocal = () => {
+    void refrescarCatalogoLocal().then((resultado) => {
+      if (!resultado.ok) mostrar(resultado.error, "error");
+    });
+  };
   const activos = productos.filter((producto) => producto.activo);
   const inactivos = productos.filter((producto) => !producto.activo);
 
@@ -42,8 +51,22 @@ export function GestionProductos({
     });
     setProductoEditando(null);
     mostrar(productoEditando ? "Producto actualizado." : "Producto creado.");
+    actualizarCatalogoLocal();
     router.refresh();
     return null;
+  };
+
+  const aplicarCambiosDePrecio = (cambios: CambioPrecio[]) => {
+    const nuevos = new Map(cambios.map((cambio) => [cambio.id, cambio.precioNuevo]));
+    setProductos((actuales) =>
+      actuales.map((producto) =>
+        nuevos.has(producto.id)
+          ? { ...producto, precio: nuevos.get(producto.id) ?? producto.precio }
+          : producto,
+      ),
+    );
+    actualizarCatalogoLocal();
+    router.refresh();
   };
 
   const desactivar = async (id: number) => {
@@ -57,6 +80,7 @@ export function GestionProductos({
     );
     if (productoEditando?.id === id) setProductoEditando(null);
     mostrar("Producto desactivado.");
+    actualizarCatalogoLocal();
     router.refresh();
   };
 
@@ -70,6 +94,7 @@ export function GestionProductos({
       actuales.map((producto) => (producto.id === id ? { ...producto, activo: true } : producto)),
     );
     mostrar("Producto reactivado.");
+    actualizarCatalogoLocal();
     router.refresh();
   };
 
@@ -92,10 +117,13 @@ export function GestionProductos({
         <FormularioProducto
           key={productoEditando?.id ?? "nuevo"}
           producto={productoEditando ?? undefined}
+          productosExistentes={productos}
           onGuardar={guardar}
           onCancelar={productoEditando ? () => setProductoEditando(null) : undefined}
         />
       </section>
+
+      <ActualizacionMasiva productos={productos} onAplicado={aplicarCambiosDePrecio} />
 
       <section className="gestion-productos__listado" aria-labelledby="titulo-productos-activos">
         <div className="gestion-productos__titulo-lista">

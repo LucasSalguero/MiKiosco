@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 import prisma from "@/shared/db/client";
 import { fallo, ok } from "@/shared/lib/resultado";
 import type { DatosProducto, Producto } from "@/shared/types/producto";
@@ -39,6 +40,9 @@ export async function actualizarProducto(
       data: {
         nombre: validado.data.nombre,
         precio: validado.data.precio,
+        categoria: validado.data.categoria,
+        marca: validado.data.marca,
+        codigoBarras: validado.data.codigoBarras,
       },
     });
 
@@ -47,6 +51,9 @@ export async function actualizarProducto(
     revalidatePath("/historial");
     return ok(mapearProducto(producto));
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return fallo("Ese código de barras ya está cargado en otro producto.", "validation");
+    }
     console.error("products.actualizarProducto", error);
     return fallo("No se pudo actualizar el producto.");
   }

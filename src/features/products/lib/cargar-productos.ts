@@ -5,6 +5,7 @@ import { leerProductosCache, guardarProductosCache } from "@/shared/lib/storage"
 import { fallo, ok } from "@/shared/lib/resultado";
 
 import { listarProductosActivos } from "@/features/products/actions/listar-productos";
+import { completarProductoCacheado } from "@/features/products/lib/mapear-producto";
 
 const TIMEOUT_CARGA_PRODUCTOS_MS = 8000;
 
@@ -43,9 +44,29 @@ export async function cargarProductos(): Promise<
   const resultadoCache = await leerProductosCache();
 
   if (resultadoCache.ok && resultadoCache.data.length > 0) {
-    return ok({ productos: resultadoCache.data, origen: "cache" });
+    return ok({ productos: resultadoCache.data.map(completarProductoCacheado), origen: "cache" });
   }
 
   console.error("products.cargarProductos", resultadoServidor.error);
   return fallo("No se pudieron cargar los productos.", resultadoServidor.code);
+}
+
+/**
+ * Vuelve a guardar en este dispositivo el catálogo activo del servidor, para
+ * que la grilla offline no quede con precios o datos viejos después de un cambio.
+ */
+export async function refrescarCatalogoLocal(): Promise<Resultado<number>> {
+  try {
+    const resultado = await listarProductosActivos();
+    if (!resultado.ok) return fallo(resultado.error, resultado.code);
+    const guardado = await guardarProductosCache(resultado.data);
+    if (!guardado.ok) {
+      console.error("products.refrescarCatalogoLocal", guardado.error);
+      return fallo("No se pudo actualizar el catálogo guardado en este dispositivo.", "storage");
+    }
+    return ok(resultado.data.length);
+  } catch (error) {
+    console.error("products.refrescarCatalogoLocal", error);
+    return fallo("No se pudo actualizar el catálogo guardado en este dispositivo.", "network");
+  }
 }

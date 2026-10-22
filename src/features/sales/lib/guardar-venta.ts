@@ -32,7 +32,7 @@ export async function guardarVenta(
     });
     if (existente) return ok({ id: existente.id });
 
-    const { items, fecha, estadoPago } = validado.data;
+    const { items, fecha, estadoPago, medioPago } = validado.data;
     const ids = [
       ...new Set(items.flatMap((item) => (item.productoId === null ? [] : [item.productoId]))),
     ];
@@ -83,6 +83,7 @@ export async function guardarVenta(
           fecha: new Date(fecha),
           total: new Prisma.Decimal(total.toFixed(2)),
           estadoPago,
+          medioPago: medioPago ?? null,
           clienteFiadoId: clienteFiado?.id,
           clienteNombre: estadoPago === "PAGADA" ? null : (clienteFiado?.nombre ?? null),
           autorizadaPor: validado.data.autorizadaPor ?? null,

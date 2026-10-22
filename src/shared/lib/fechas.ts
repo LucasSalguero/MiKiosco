@@ -86,3 +86,8 @@ export function rangoDelDia(fechaISO: string): { desde: Date; hasta: Date } {
 export function hoyISO(): string {
   return fechaLocalISO(new Date());
 }
+
+/** Hora (0-23) de un instante en la zona horaria de Buenos Aires. */
+export function horaLocal(fecha: Date): number {
+  return Number(partesEnZona(fecha).hour);
+}

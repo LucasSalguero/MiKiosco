@@ -20,6 +20,10 @@ La aplicación incluye:
 - Resumen diario separado entre vendido, cobrado y deuda pendiente
 - Cierre perezoso de ventas vencidas al cargar Vender, Fiados o Historial, más
   cierre manual confirmado desde Fiados
+- Medio de pago en cada venta cobrada (efectivo o transferencia, con un tap)
+- Caja diaria: egresos, retiros e ingresos, arqueo y cierre que no cambia después
+- Productos con categoría, marca y código de barras, filtro en la grilla de venta
+  y actualización masiva de precios con vista previa
 
 ## Requisitos
 
@@ -168,6 +172,9 @@ src/
     daily-summary/
     sales-history/
     offline-sync/
+    cash-register/
+    auth/
+    fiados/
   shared/
     db/
     ui/
@@ -227,3 +234,35 @@ en el sistema anterior.
 con `node:test` y `tsx`,
 `npm run typecheck`, `npm run lint`, `npm run format:check` y `npm run build`
 verifican el proyecto.
+
+## Caja y medio de pago
+
+Cada venta cobrada guarda si fue en efectivo o por transferencia: la pantalla de
+venta tiene un botón para cada medio, así que sigue siendo producto → cobrar. Las
+ventas cobradas anteriores a este dato quedan como `DESCONOCIDO` ("Sin
+registrar"), igual que las ventas viejas que estaban en la cola offline sin el
+campo. Las ventas fiadas no llevan medio: se registra en el pago.
+
+La pantalla **Caja** muestra lo cobrado por medio, los movimientos de efectivo
+(egresos, retiros e ingresos), los productos más vendidos, las ventas por hora y
+el arqueo:
+
+```text
+efectivo esperado = fondo inicial + ventas en efectivo + cobros de fiados en efectivo
+                    + ingresos − egresos − retiros
+```
+
+Al cerrar la caja se guarda una foto que no cambia después. El servidor
+recalcula todos los totales. Si después del cierre entra una venta de ese día
+(por ejemplo, una venta offline que se sincronizó tarde), la pantalla lo avisa
+sin modificar el cierre. Mientras el celular tenga ventas del día sin
+sincronizar, el botón de cierre queda bloqueado. Registrar movimientos y cerrar
+la caja requieren conexión.
+
+## Integración continua
+
+`.github/workflows/ci.yml` corre `npm ci`, `prisma generate`, `npm test`,
+`npm run typecheck` y `npm run lint` con Node 22 en cada push y pull request a
+`main`. La lógica de negocio que se prueba no importa Prisma, así que
+`npm test` no necesita correr `prisma generate` antes. Typecheck y build sí lo
+necesitan.

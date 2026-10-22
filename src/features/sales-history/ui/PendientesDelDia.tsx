@@ -10,6 +10,7 @@ import {
 } from "@/features/offline-sync/lib/cola-ventas";
 import { fechaLocalISO, ZONA_HORARIA } from "@/shared/lib/fechas";
 import { formatearPesos } from "@/shared/lib/moneda";
+import { etiquetaMedioPago } from "@/shared/lib/medio-pago";
 import { ConfirmarAccion } from "@/shared/ui/ConfirmarAccion";
 import { TotalDelDia } from "@/features/daily-summary/ui/TotalDelDia";
 import { useEstadoConexion } from "@/features/offline-sync/lib/use-estado-conexion";
@@ -123,7 +124,7 @@ export function PendientesDelDia({
                       {requiereRevision
                         ? "Requiere revisión"
                         : estadoPago === "PAGADA"
-                          ? "Pendiente de sincronizar"
+                          ? `Pendiente de sincronizar · ${etiquetaMedioPago(pendiente.venta.medioPago ?? "DESCONOCIDO")}`
                           : estadoPago === "A_COBRAR_HOY"
                             ? "A cobrar hoy"
                             : "Cuenta mensual"}
