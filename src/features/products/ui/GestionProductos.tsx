@@ -7,11 +7,12 @@ import { actualizarProducto } from "@/features/products/actions/actualizar-produ
 import { crearProducto } from "@/features/products/actions/crear-producto";
 import { desactivarProducto } from "@/features/products/actions/desactivar-producto";
 import { reactivarProducto } from "@/features/products/actions/reactivar-producto";
+import { ActualizacionMasiva } from "@/features/products/ui/ActualizacionMasiva";
 import { FormularioProducto } from "@/features/products/ui/FormularioProducto";
 import { ListaProductos } from "@/features/products/ui/ListaProductos";
 import { refrescarCatalogoLocal } from "@/features/products/lib/cargar-productos";
 import { useToast } from "@/shared/ui/use-toast";
-import type { DatosProducto, Producto } from "@/shared/types/producto";
+import type { CambioPrecio, DatosProducto, Producto } from "@/shared/types/producto";
 
 export function GestionProductos({
   productosIniciales,
@@ -53,6 +54,19 @@ export function GestionProductos({
     actualizarCatalogoLocal();
     router.refresh();
     return null;
+  };
+
+  const aplicarCambiosDePrecio = (cambios: CambioPrecio[]) => {
+    const nuevos = new Map(cambios.map((cambio) => [cambio.id, cambio.precioNuevo]));
+    setProductos((actuales) =>
+      actuales.map((producto) =>
+        nuevos.has(producto.id)
+          ? { ...producto, precio: nuevos.get(producto.id) ?? producto.precio }
+          : producto,
+      ),
+    );
+    actualizarCatalogoLocal();
+    router.refresh();
   };
 
   const desactivar = async (id: number) => {
@@ -108,6 +122,8 @@ export function GestionProductos({
           onCancelar={productoEditando ? () => setProductoEditando(null) : undefined}
         />
       </section>
+
+      <ActualizacionMasiva productos={productos} onAplicado={aplicarCambiosDePrecio} />
 
       <section className="gestion-productos__listado" aria-labelledby="titulo-productos-activos">
         <div className="gestion-productos__titulo-lista">

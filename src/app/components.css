@@ -1833,3 +1833,94 @@
   color: var(--muted);
   font-size: 13px;
 }
+
+/* Productos: actualización masiva de precios */
+.actualizacion-masiva {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.actualizacion-masiva h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.actualizacion-masiva__campos {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 760px) {
+  .actualizacion-masiva__campos {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.opciones-redondeo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.opciones-redondeo legend {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.opciones-redondeo label {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.opciones-redondeo label:has(input:checked) {
+  border-color: var(--verde);
+  background: #e8f5ef;
+}
+
+.vista-previa-precios {
+  display: grid;
+  gap: 10px;
+}
+
+.vista-previa-precios p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.vista-previa-precios ul {
+  display: grid;
+  max-height: 360px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.vista-previa-precios li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.vista-previa-precios small,
+.vista-previa-precios s {
+  color: var(--muted);
+}
