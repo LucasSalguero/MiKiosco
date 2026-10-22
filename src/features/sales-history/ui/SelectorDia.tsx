@@ -6,7 +6,13 @@ import type { ReactElement } from "react";
 import { hoyISO } from "@/shared/lib/fechas";
 import { Boton } from "@/shared/ui/Boton";
 
-export function SelectorDia({ fecha }: { fecha: string }): ReactElement {
+export function SelectorDia({
+  fecha,
+  etiqueta = "Elegir fecha del historial",
+}: {
+  fecha: string;
+  etiqueta?: string;
+}): ReactElement {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -25,7 +31,7 @@ export function SelectorDia({ fecha }: { fecha: string }): ReactElement {
         type="date"
         value={fecha}
         max={hoy}
-        aria-label="Elegir fecha del historial"
+        aria-label={etiqueta}
         onChange={(event) => cambiarFecha(event.target.value)}
         className="selector-dia__entrada"
       />
